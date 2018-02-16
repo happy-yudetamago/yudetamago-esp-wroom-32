@@ -1,9 +1,8 @@
 #include <Adafruit_NeoPixel.h>
-#include <ESP8266WiFi.h>
+#include <WiFi.h>
 
 #include "Log.h"
 #include "Config.h"
-#include "ConfigServer.h"
 #include "NCMBConfig.h"
 #include "YudetamagoClient.h"
 
@@ -100,7 +99,8 @@ void setup() {
         Log::Info("Detected Config mode.");
         pixels.setPixelColor(NEO_PIXEL_STOCK_0, CONFIG_COLOR);
         pixels.show();
-        ConfigServer::Start();
+        // ConfigServer::Start();
+        while (1);
         // can not reach here.
     }
     Log::Info("Detected Normal mode.");

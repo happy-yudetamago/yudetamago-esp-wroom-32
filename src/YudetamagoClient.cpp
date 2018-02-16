@@ -1,6 +1,6 @@
 #include "YudetamagoClient.h"
 
-#include <ESP8266HTTPClient.h>
+#include <HTTPClient.h>
 #include <base64.h>
 #include "sha256.h"
 #include "NCMBConfig.h"

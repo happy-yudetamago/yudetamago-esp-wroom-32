@@ -1,6 +1,6 @@
 #include "Config.h"
 
-#include <FS.h>
+#include <SPIFFS.h>
 
 const char* config_file = "/config.txt";
 const char* objectids_file = "/objectids.txt";
