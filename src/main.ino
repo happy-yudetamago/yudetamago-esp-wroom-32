@@ -3,6 +3,7 @@
 
 #include "Log.h"
 #include "Config.h"
+#include "Command.h"
 #include "NCMBConfig.h"
 #include "YudetamagoClient.h"
 
@@ -99,7 +100,7 @@ void setup() {
         Log::Info("Detected Config mode.");
         pixels.setPixelColor(NEO_PIXEL_STOCK_0, CONFIG_COLOR);
         pixels.show();
-        // ConfigServer::Start();
+        Command::Start();
         while (1);
         // can not reach here.
     }
