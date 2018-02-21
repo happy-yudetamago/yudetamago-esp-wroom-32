@@ -1,3 +1,5 @@
+// see
+// https://github.com/copercini/arduino-esp32-SPIFFS/blob/master/examples/SPIFFS_Test/SPIFFS_Test.ino
 
 #include <Arduino.h>
 #include "esp_bt.h"
@@ -187,7 +189,7 @@ static void initialize(void)
     }
     ESP_ERROR_CHECK( ret );
     esp_bt_controller_config_t bt_cfg = BT_CONTROLLER_INIT_CONFIG_DEFAULT();
-    
+
     if (esp_bt_controller_init(&bt_cfg) != ESP_OK) {
         ESP_LOGI(tag, "Bluetooth controller initialize failed");
         return;
@@ -201,6 +203,8 @@ static void initialize(void)
 
 void Command::Start()
 {
+    initialize();
+
     int cmd_cnt = 0;
     bool send_avail = false;
     esp_vhci_host_register_callback(&vhci_host_cb);
