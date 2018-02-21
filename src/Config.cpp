@@ -7,7 +7,9 @@ const char* objectids_file = "/objectids.txt";
 
 bool Config::Initialize()
 {
-    return SPIFFS.begin();
+    // see
+    // https://github.com/espressif/arduino-esp32/issues/638
+    return SPIFFS.begin(true); // true: formatOnFail
 }
 
 bool Config::ReadWifiConfig(String& ssid, String& pass)
