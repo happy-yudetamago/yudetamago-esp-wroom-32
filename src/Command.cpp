@@ -1,5 +1,5 @@
 // see
-// https://github.com/copercini/arduino-esp32-SPIFFS/blob/master/examples/SPIFFS_Test/SPIFFS_Test.ino
+// https://github.com/platformio/platform-espressif32/blob/develop/examples/espidf-ble-adv/src/main.c
 
 #include <Arduino.h>
 #include "esp_bt.h"
@@ -164,7 +164,7 @@ static void hci_cmd_send_ble_set_adv_param(void)
 
 static void hci_cmd_send_ble_set_adv_data(void)
 {
-    const char *adv_name = "ESP-BLE-HELLO";
+    const char *adv_name = "YUDETAMAGO-BLE";
     uint8_t name_len = (uint8_t)strlen(adv_name);
     uint8_t adv_data[31] = {0x02, 0x01, 0x06, 0x0, 0x09};
     uint8_t adv_data_len;
