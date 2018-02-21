@@ -1,5 +1,30 @@
 # yudetamago-esd-wroom-02
 
+## for developer
+
+### build firmware
+
+```
+$ pio run
+```
+
+### upload firmware
+
+1. [yudetamago] push boot
+1. [yudetamago] push reset
+1. [yudetamago] pull reset
+1. [yudetamago] pull boot
+
+```
+$ pio run --target upload
+```
+
+### monitor serial
+
+```
+$ platformio serialports monitor -b 115200
+```
+
 ## for manufacturer
 
 ### How to set up object id
