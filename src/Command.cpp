@@ -414,66 +414,66 @@ static void gatts_profile_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_
                 ESP_LOGI(GATTS_TABLE_TAG, "ESP_GATTS_PREP_WRITE_EVT : handle = %d\n", res);
                 store_wr_buffer(p_data);
             }
-      	 	break;
-    	}
-    	case ESP_GATTS_EXEC_WRITE_EVT:{
-    	    ESP_LOGI(GATTS_TABLE_TAG, "ESP_GATTS_EXEC_WRITE_EVT\n");
-    	    if(p_data->exec_write.exec_write_flag){
-    	        print_write_buffer();
-    	        free_write_buffer();
-    	    }
-    	    break;
-    	}
-    	case ESP_GATTS_MTU_EVT:
-    	    spp_mtu_size = p_data->mtu.mtu;
-    	    break;
-    	case ESP_GATTS_CONF_EVT:
-    	    break;
-    	case ESP_GATTS_UNREG_EVT:
-        	break;
-    	case ESP_GATTS_DELETE_EVT:
-        	break;
-    	case ESP_GATTS_START_EVT:
-        	break;
-    	case ESP_GATTS_STOP_EVT:
-        	break;
-    	case ESP_GATTS_CONNECT_EVT:
-    	    spp_conn_id = p_data->connect.conn_id;
-    	    spp_gatts_if = gatts_if;
-    	    is_connected = true;
-    	    memcpy(&spp_remote_bda,&p_data->connect.remote_bda,sizeof(esp_bd_addr_t));
-        	break;
-    	case ESP_GATTS_DISCONNECT_EVT:
-    	    is_connected = false;
-    	    enable_data_ntf = false;
-    	    esp_ble_gap_start_advertising(&spp_adv_params);
-    	    break;
-    	case ESP_GATTS_OPEN_EVT:
-    	    break;
-    	case ESP_GATTS_CANCEL_OPEN_EVT:
-    	    break;
-    	case ESP_GATTS_CLOSE_EVT:
-    	    break;
-    	case ESP_GATTS_LISTEN_EVT:
-    	    break;
-    	case ESP_GATTS_CONGEST_EVT:
-    	    break;
-    	case ESP_GATTS_CREAT_ATTR_TAB_EVT:{
-    	    ESP_LOGI(GATTS_TABLE_TAG, "The number handle =%x\n",param->add_attr_tab.num_handle);
-    	    if (param->add_attr_tab.status != ESP_GATT_OK){
-    	        ESP_LOGE(GATTS_TABLE_TAG, "Create attribute table failed, error code=0x%x", param->add_attr_tab.status);
-    	    }
-    	    else if (param->add_attr_tab.num_handle != SPP_IDX_NB){
-    	        ESP_LOGE(GATTS_TABLE_TAG, "Create attribute table abnormally, num_handle (%d) doesn't equal to HRS_IDX_NB(%d)", param->add_attr_tab.num_handle, SPP_IDX_NB);
-    	    }
-    	    else {
-    	        memcpy(spp_handle_table, param->add_attr_tab.handles, sizeof(spp_handle_table));
-    	        esp_ble_gatts_start_service(spp_handle_table[SPP_IDX_SVC]);
-    	    }
-    	    break;
-    	}
-    	default:
-    	    break;
+            break;
+        }
+        case ESP_GATTS_EXEC_WRITE_EVT:{
+            ESP_LOGI(GATTS_TABLE_TAG, "ESP_GATTS_EXEC_WRITE_EVT\n");
+            if(p_data->exec_write.exec_write_flag){
+                print_write_buffer();
+                free_write_buffer();
+            }
+            break;
+        }
+        case ESP_GATTS_MTU_EVT:
+            spp_mtu_size = p_data->mtu.mtu;
+            break;
+        case ESP_GATTS_CONF_EVT:
+            break;
+        case ESP_GATTS_UNREG_EVT:
+            break;
+        case ESP_GATTS_DELETE_EVT:
+            break;
+        case ESP_GATTS_START_EVT:
+            break;
+        case ESP_GATTS_STOP_EVT:
+            break;
+        case ESP_GATTS_CONNECT_EVT:
+            spp_conn_id = p_data->connect.conn_id;
+            spp_gatts_if = gatts_if;
+            is_connected = true;
+            memcpy(&spp_remote_bda,&p_data->connect.remote_bda,sizeof(esp_bd_addr_t));
+            break;
+        case ESP_GATTS_DISCONNECT_EVT:
+            is_connected = false;
+            enable_data_ntf = false;
+            esp_ble_gap_start_advertising(&spp_adv_params);
+            break;
+        case ESP_GATTS_OPEN_EVT:
+            break;
+        case ESP_GATTS_CANCEL_OPEN_EVT:
+            break;
+        case ESP_GATTS_CLOSE_EVT:
+            break;
+        case ESP_GATTS_LISTEN_EVT:
+            break;
+        case ESP_GATTS_CONGEST_EVT:
+            break;
+        case ESP_GATTS_CREAT_ATTR_TAB_EVT:{
+            ESP_LOGI(GATTS_TABLE_TAG, "The number handle =%x\n",param->add_attr_tab.num_handle);
+            if (param->add_attr_tab.status != ESP_GATT_OK){
+                ESP_LOGE(GATTS_TABLE_TAG, "Create attribute table failed, error code=0x%x", param->add_attr_tab.status);
+            }
+            else if (param->add_attr_tab.num_handle != SPP_IDX_NB){
+                ESP_LOGE(GATTS_TABLE_TAG, "Create attribute table abnormally, num_handle (%d) doesn't equal to HRS_IDX_NB(%d)", param->add_attr_tab.num_handle, SPP_IDX_NB);
+            }
+            else {
+                memcpy(spp_handle_table, param->add_attr_tab.handles, sizeof(spp_handle_table));
+                esp_ble_gatts_start_service(spp_handle_table[SPP_IDX_SVC]);
+            }
+            break;
+        }
+        default:
+            break;
     }
 }
 
@@ -491,7 +491,7 @@ static void gatts_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_
             return;
         }
     }
-	
+
     do {
         int idx;
         for (idx = 0; idx < SPP_PROFILE_NUM; idx++) {
