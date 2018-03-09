@@ -4,9 +4,10 @@ TEST_CASES     := $(wildcard test_*.cpp)
 TEST_CASES_BIN := $(patsubst %.cpp,%,$(TEST_CASES))
 VPATH          := $(TEST_DIR)
 INCLUDE_FLAGS  := -I../src
+CPP_FLAGS      := -Wall -Werror $(INCLUDE_FLAGS)
 
 test_%: test_%.cpp
-	g++ $^ -o $@ $(INCLUDE_FLAGS)
+	g++ $^ -o $@ $(CPP_FLAGS)
 
 .PHONY: test
 test: $(TEST_CASES_BIN)
