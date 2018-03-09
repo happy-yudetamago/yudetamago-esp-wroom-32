@@ -1,5 +1,7 @@
-#include <Command.h>
+#include "Command.h"
 #include "BluetoothSerial.h"
+
+#include "CommandLineParser.hpp"
 
 static BluetoothSerial SerialBT;
 
