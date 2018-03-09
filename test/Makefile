@@ -15,3 +15,7 @@ test: $(TEST_CASES_BIN)
 	for t in $(TEST_CASES_BIN) ; do \
 		./$$t; \
 	done
+
+.PHONY: clean
+clean:
+	-rm -f $(TEST_CASES_BIN)
