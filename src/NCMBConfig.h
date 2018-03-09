@@ -1,3 +1,4 @@
+#pragma once
 
 #define APPLICATION_KEY ""
 #define CLIENT_KEY      ""
