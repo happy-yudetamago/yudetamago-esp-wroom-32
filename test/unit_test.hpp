@@ -11,14 +11,16 @@
 
 #define UT_ASSERT_STRING(expected, actual)                              \
     if (strcmp(expected, actual) != 0) {                                \
-        printf("assert fail\n  expected : %s\n  actual: %s\n",          \
+        printf("assertion fail %s:%d\n", __FILE__, __LINE__);           \
+        printf("  expected: %s\n  actual:   %s\n",                      \
                expected, actual);                                       \
         assert(false);                                                  \
     }                                                                   \
 
 #define UT_ASSERT_POINTER(expected, actual)                             \
     if (expected != actual) {                                           \
-        printf("assert fail\n  expected : %p\n  actual: %p\n",          \
+        printf("assertion fail %s:%d\n", __FILE__, __LINE__);           \
+        printf("  expected: %p\n  actual:   %p\n",                      \
                expected, actual);                                       \
         assert(false);                                                  \
     }                                                                   \
