@@ -23,15 +23,15 @@ public:
         return false;
     }
 
-    const char *GetName() {
+    const char *GetName() const {
         return buffer;
     }
 
-    const char *GetFirstArg() {
+    const char *GetFirstArg() const {
         return NextArg(buffer);
     }
 
-    const char *NextArg(const char *arg) {
+    const char *NextArg(const char *arg) const {
         if (arg < buffer) {
             return 0;
         }
@@ -57,7 +57,7 @@ private:
     int size;
 
 private:
-    const char *SkipSpace(const char *arg) {
+    const char *SkipSpace(const char *arg) const {
         int i = arg - buffer;
         for (; i<kBufferSize; i++) {
             if (buffer[i] == '\0') {
@@ -68,7 +68,7 @@ private:
         return 0;
     }
 
-    const char *SkipArg(const char *arg) {
+    const char *SkipArg(const char *arg) const {
         int i = arg - buffer;
         for (; i<kBufferSize; i++) {
             if (buffer[i] != '\0') {

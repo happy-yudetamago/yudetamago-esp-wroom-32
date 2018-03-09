@@ -1,17 +1,124 @@
 #include "Command.h"
 #include "BluetoothSerial.h"
 
+#include "Log.h"
+#include "Config.h"
 #include "CommandLineParser.hpp"
 
 static BluetoothSerial SerialBT;
+
+static size_t writeBluetooth(const char *message)
+{
+    int length = strlen(message);
+    size_t result = SerialBT.write((uint8_t*)message, length);
+    SerialBT.write('\n');
+    return result;
+}
+
+static void writeError(const char *message)
+{
+    Log::Error(message);
+    writeBluetooth(message);
+}
+
+static void writeInfo(const char *message)
+{
+    Log::Info(message);
+    writeBluetooth(message);
+}
+
+static bool executeSetSsidCommand(const CommandLineParser *parser)
+{
+    const char *parsedSsid = parser->GetFirstArg();
+    if (parsedSsid == 0) {
+        writeError("set_ssid: SSID not found.");
+        return false;
+    }
+
+    const char *parsedPass = parser->NextArg(parsedSsid);
+    if (parsedPass == 0) {
+        writeError("set_ssid: password not found.");
+        return false;
+    }
+
+    if (parser->NextArg(parsedPass) != 0) {
+        writeError("set_ssid: too many arguments.");
+        return false;
+    }
+
+    String ssid(parsedSsid);
+    String pass(parsedPass);
+    if (Config::WriteWifiConfig(ssid, pass) &&
+        Config::ReadWifiConfig(ssid, pass)) {
+        writeInfo("Successed to write wifi config.");
+    } else {
+        writeError("Failed to write wifi config.");
+    }
+    return true;
+}
+
+static bool executeSetObjectIdCommand(const CommandLineParser *parser)
+{
+    String info;
+    const char *parsedObjectId = parser->GetFirstArg();
+    if (parsedObjectId == 0) {
+        writeError("set_objectid: ObjectID not found.");
+        return false;
+    }
+
+    if (parser->NextArg(parsedObjectId) != 0) {
+        writeError("set_objectid: too many arguments.");
+        return false;
+    }
+
+    String objectId(parsedObjectId);
+    if (Config::WriteObjectId(objectId) &&
+        Config::ReadObjectId(objectId)) {
+        writeInfo("Successed to write objectId.");
+    } else {
+        writeError("Failed to write objectId.");
+    }
+    return true;
+}
+
+static bool executeCommandLine(const char *line)
+{
+    CommandLineParser parser(line);
+    if (!parser.Parse()) {
+        return false;
+    }
+
+    if (strcmp(parser.GetName(), "set_ssid") == 0) {
+        return executeSetSsidCommand(&parser);
+    }
+    if (strcmp(parser.GetName(), "set_objectid") == 0) {
+        return executeSetObjectIdCommand(&parser);
+    }
+    return true;
+}
 
 void Command::Start()
 {
     SerialBT.begin("Yudetamago config"); // Bluetooth device name
 
+    String buf;
     while (1) {
         if (SerialBT.available()) {
-            Serial.write(SerialBT.read());
+            char ch = SerialBT.read();
+            Serial.write(ch);
+
+            switch (ch) {
+            case '\n':
+            case '\r':
+                if (buf.length() != 0) {
+                    executeCommandLine(buf.c_str());
+                    buf = String();
+                }
+                break;
+            default:
+                buf.concat(ch);
+                break;
+            }
         }
         delay(20);
     }
