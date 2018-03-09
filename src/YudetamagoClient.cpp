@@ -57,7 +57,19 @@ bool YudetamagoClient::GetExistance(const char *objectId, bool& exists, String& 
     url += objectId;
     url += "%22%7D";
     HTTPClient http;
-    http.begin(url, NCMB_FINGERPRINT);
+    http.begin(url);
+    ///////////////////////////////////////////////////////////////////////////////////////////
+    // http.begin(url, NCMB_FINGERPRINT);                                                    //
+    //                                                                                       //
+    // esp32 has error occured.                                                              //
+    //                                                                                       //
+    // Log                                                                                   //
+    // [E][ssl_client.cpp:28] handle_error(): X509 - The CRT/CRL/CSR format is invalid,      //
+    //     e.g. different type expected                                                      //
+    // [E][ssl_client.cpp:30] handle_error(): MbedTLS message code: -8576                    //
+    // [E][WiFiClientSecure.cpp:108] connect(): lwip_connect_r: 22                           //
+    // [ERROR] GetExistance(rZelDIxpcmRMgKNQ) error: http status code -1: connection refused //
+    ///////////////////////////////////////////////////////////////////////////////////////////
     http.addHeader("X-NCMB-Application-Key", APPLICATION_KEY);
     http.addHeader("X-NCMB-Timestamp",       TIMESTAMP);
     http.addHeader("X-NCMB-Signature",       getGetExistanceSignature(objectId));
@@ -100,7 +112,19 @@ bool YudetamagoClient::SetExistance(const char *objectId, bool exists, String& e
     String url = "https://mb.api.cloud.nifty.com/2013-09-01/classes/ToggleStocker/";
     url += objectId;
     HTTPClient http;
-    http.begin(url, NCMB_FINGERPRINT);
+    http.begin(url);
+    ///////////////////////////////////////////////////////////////////////////////////////////
+    // http.begin(url, NCMB_FINGERPRINT);                                                    //
+    //                                                                                       //
+    // esp32 has error occured.                                                              //
+    //                                                                                       //
+    // Log                                                                                   //
+    // [E][ssl_client.cpp:28] handle_error(): X509 - The CRT/CRL/CSR format is invalid,      //
+    //     e.g. different type expected                                                      //
+    // [E][ssl_client.cpp:30] handle_error(): MbedTLS message code: -8576                    //
+    // [E][WiFiClientSecure.cpp:108] connect(): lwip_connect_r: 22                           //
+    // [ERROR] GetExistance(rZelDIxpcmRMgKNQ) error: http status code -1: connection refused //
+    ///////////////////////////////////////////////////////////////////////////////////////////
     http.addHeader("X-NCMB-Application-Key", APPLICATION_KEY);
     http.addHeader("X-NCMB-Timestamp",       TIMESTAMP);
     http.addHeader("X-NCMB-Signature",       getSetExistanceSignature(objectId));
