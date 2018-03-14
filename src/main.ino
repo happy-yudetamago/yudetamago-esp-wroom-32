@@ -4,7 +4,7 @@
 
 #include "Log.h"
 #include "Config.h"
-#include "Command.h"
+#include "CommandLine.h"
 #include "NCMBConfig.h"
 #include "YudetamagoClient.h"
 
@@ -102,7 +102,7 @@ void setup() {
         pixels.setPixelColor(NEO_PIXEL_STOCK_0, CONFIG_COLOR);
         pixels.show();
 
-        Command cmd;
+        CommandLine cmd;
         cmd.InitializeBluetooth();
         while (1) {
             cmd.AnalyzeBluetooth();
@@ -134,7 +134,7 @@ void setup() {
 }
 
 void loop() {
-    static Command cmd;
+    static CommandLine cmd;
     for (int times=0; times<NCMB_ACCESS_INTERVAL; times+=NCMB_BUTTON_INTERVAL) {
         while (cmd.AnalyzeSerial()) {
         }

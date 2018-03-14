@@ -2,9 +2,9 @@
 
 #include "CommandLineParser.hpp"
 
-class Command {
+class CommandLine {
 public:
-    Command();
+    CommandLine();
 
 public:
     void InitializeBluetooth();

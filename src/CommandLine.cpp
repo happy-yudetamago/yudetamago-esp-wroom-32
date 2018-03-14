@@ -1,23 +1,23 @@
 #include <BluetoothSerial.h>
 
-#include "Command.h"
+#include "CommandLine.h"
 #include "Log.h"
 #include "Config.h"
 #include "CommandLineParser.hpp"
 
 static BluetoothSerial SerialBT;
 
-Command::Command() : enableBluetooth(false)
+CommandLine::CommandLine() : enableBluetooth(false)
 {
 }
 
-void Command::InitializeBluetooth()
+void CommandLine::InitializeBluetooth()
 {
     enableBluetooth = true;
     SerialBT.begin("Yudetamago config"); // Bluetooth device name
 }
 
-boolean Command::AnalyzeBluetooth()
+boolean CommandLine::AnalyzeBluetooth()
 {
     if (!enableBluetooth) {
         return false;
@@ -31,7 +31,7 @@ boolean Command::AnalyzeBluetooth()
     return true;
 }
 
-boolean Command::AnalyzeSerial()
+boolean CommandLine::AnalyzeSerial()
 {
     if (!Serial.available()) {
         return false;
@@ -42,7 +42,7 @@ boolean Command::AnalyzeSerial()
     return true;
 }
 
-void Command::Write(char ch)
+void CommandLine::Write(char ch)
 {
     writeChar(ch);
 
@@ -61,7 +61,7 @@ void Command::Write(char ch)
     }
 }
 
-size_t Command::writeMessage(const char *message)
+size_t CommandLine::writeMessage(const char *message)
 {
     Serial.print(message);
     int length = strlen(message);
@@ -72,7 +72,7 @@ size_t Command::writeMessage(const char *message)
     return length;
 }
 
-size_t Command::writeChar(char ch)
+size_t CommandLine::writeChar(char ch)
 {
     Serial.write(ch);
     if (enableBluetooth) {
@@ -81,7 +81,7 @@ size_t Command::writeChar(char ch)
     return 1;
 }
 
-void Command::writeError(const char *message)
+void CommandLine::writeError(const char *message)
 {
     Log::Error(message);
     if (enableBluetooth) {
@@ -90,7 +90,7 @@ void Command::writeError(const char *message)
     }
 }
 
-void Command::writeInfo(const char *message)
+void CommandLine::writeInfo(const char *message)
 {
     Log::Info(message);
     if (enableBluetooth) {
@@ -99,7 +99,7 @@ void Command::writeInfo(const char *message)
     }
 }
 
-bool Command::executeSetSsidCommand(const CommandLineParser *parser)
+bool CommandLine::executeSetSsidCommand(const CommandLineParser *parser)
 {
     const char *parsedSsid = parser->GetFirstArg();
     if (parsedSsid == 0) {
@@ -129,7 +129,7 @@ bool Command::executeSetSsidCommand(const CommandLineParser *parser)
     return true;
 }
 
-bool Command::executeSetObjectIdCommand(const CommandLineParser *parser)
+bool CommandLine::executeSetObjectIdCommand(const CommandLineParser *parser)
 {
     String info;
     const char *parsedObjectId = parser->GetFirstArg();
@@ -153,7 +153,7 @@ bool Command::executeSetObjectIdCommand(const CommandLineParser *parser)
     return true;
 }
 
-bool Command::executeCommandLine(const char *line)
+bool CommandLine::executeCommandLine(const char *line)
 {
     CommandLineParser parser(line);
     if (!parser.Parse()) {
