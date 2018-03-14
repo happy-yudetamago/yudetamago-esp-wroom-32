@@ -1,5 +1,6 @@
 #include <Adafruit_NeoPixel.h>
 #include <WiFi.h>
+#include <BluetoothSerial.h>
 
 #include "Log.h"
 #include "Config.h"
@@ -100,8 +101,13 @@ void setup() {
         Log::Info("Detected Config mode.");
         pixels.setPixelColor(NEO_PIXEL_STOCK_0, CONFIG_COLOR);
         pixels.show();
-        Command::Start();
-        while (1);
+
+        Command cmd;
+        cmd.InitializeBluetooth();
+        while (1) {
+            cmd.AnalyzeBluetooth();
+            delay(20);
+        }
         // can not reach here.
     }
     Log::Info("Detected Normal mode.");
@@ -128,7 +134,10 @@ void setup() {
 }
 
 void loop() {
+    static Command cmd;
     for (int times=0; times<NCMB_ACCESS_INTERVAL; times+=NCMB_BUTTON_INTERVAL) {
+        while (cmd.AnalyzeSerial()) {
+        }
         if (digitalRead(STOCK_0_PIN) != LOW) {
             delay(NCMB_BUTTON_INTERVAL);
             continue;
