@@ -19,6 +19,9 @@ private:
     void writeInfo(const char *message);
     bool executeSetSsidCommand(const CommandLineParser *parser);
     bool executeSetObjectIdCommand(const CommandLineParser *parser);
+    bool executeLogCommand(const CommandLineParser *parser);
+    bool executeLogLevelCommand(const CommandLineParser *parser);
+    bool executeInfoCommand(const CommandLineParser *parser);
     bool executeCommandLine(const char *line);
 
 private:

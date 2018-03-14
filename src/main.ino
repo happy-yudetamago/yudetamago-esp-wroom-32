@@ -1,6 +1,5 @@
 #include <Adafruit_NeoPixel.h>
 #include <WiFi.h>
-#include <BluetoothSerial.h>
 
 #include "Log.h"
 #include "Config.h"
@@ -146,14 +145,19 @@ void loop() {
         // button pressed
         exists = !exists;
         if (exists) {
-            Log::Info("Detected button pressed: exist");
+            Log::Debug("Detected button pressed: exist");
         } else {
-            Log::Info("Detected button pressed: not exist");
+            Log::Debug("Detected button pressed: not exist");
         }
         String error;
         if (!YudetamagoClient::SetExistance(object_id.c_str(), exists, error)) {
             Log::Error(error.c_str());
             showError();
+        }
+        if (exists) {
+            Log::Info("SetExistance: exist");
+        } else {
+            Log::Info("SetExistance: not exist");
         }
 
         showExistState();
@@ -167,6 +171,7 @@ void loop() {
         showError();
     }
     if (exists == existsPrev) {
+        Log::Debug("status not change:");
         return;
     }
     if (exists) {

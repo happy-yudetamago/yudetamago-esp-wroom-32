@@ -1,12 +1,10 @@
 #include "Log.h"
 
-#define LOG_CAPACITY 64
-
 static int log_size             = 0;
 static int log_next_write_index = 0;
 static int log_level            = Log::LOG_LEVEL_INFO;
 
-static String logs[LOG_CAPACITY];
+static String logs[Log::LOG_CAPACITY];
 
 static void add(const String& message)
 {
@@ -15,9 +13,9 @@ static void add(const String& message)
     logs[log_next_write_index] = message;
 
     ++log_next_write_index;
-    log_next_write_index = log_next_write_index % LOG_CAPACITY;
+    log_next_write_index = log_next_write_index % Log::LOG_CAPACITY;
 
-    if (log_size < LOG_CAPACITY) {
+    if (log_size < Log::LOG_CAPACITY) {
         ++log_size;
     }
 }
@@ -34,8 +32,7 @@ int Log::Size()
 
 bool Log::GetLog(int index, String& log)
 {
-    if (index < 0 ||
-        log_size >= index) {
+    if (index < 0 || log_size < index) {
         return false;
     }
 

@@ -12,6 +12,7 @@ public:
         LOG_LEVEL_WARN,
         LOG_LEVEL_ERROR,
         LOG_LEVEL_FATAL,
+        LOG_CAPACITY = 64,
     };
 
 public:

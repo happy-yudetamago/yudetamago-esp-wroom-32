@@ -44,16 +44,18 @@ boolean CommandLine::AnalyzeSerial()
 
 void CommandLine::Write(char ch)
 {
+    if (ch == '\r') {
+        return;
+    }
     writeChar(ch);
 
     switch (ch) {
     case '\n':
-        writeMessage("$ ");
-    case '\r':
         if (buf.length() != 0) {
             executeCommandLine(buf.c_str());
             buf = String();
         }
+        writeMessage("$ ");
         break;
     default:
         buf.concat(ch);
@@ -153,6 +155,85 @@ bool CommandLine::executeSetObjectIdCommand(const CommandLineParser *parser)
     return true;
 }
 
+bool CommandLine::executeLogCommand(const CommandLineParser *parser)
+{
+    for (int i=0; i<Log::LOG_CAPACITY; i++) {
+        String log;
+        if (!Log::GetLog(i, log)) {
+            return true;
+        }
+        writeMessage(log.c_str());
+        writeMessage("\n");
+    }
+    return true;
+}
+
+bool CommandLine::executeLogLevelCommand(const CommandLineParser *parser)
+{
+    const char *level = parser->GetFirstArg();
+    if (level == 0) {
+        writeError("loglevel: no log level");
+        return false;
+    }
+    if (strcmp(level, "TRACE") == 0) {
+        writeInfo("loglevel: set TRACE");
+        Log::SetLevel(Log::LOG_LEVEL_TRACE);
+        return true;
+    }
+    if (strcmp(level, "DEBUG") == 0) {
+        writeInfo("loglevel: set DEBUG");
+        Log::SetLevel(Log::LOG_LEVEL_DEBUG);
+        return true;
+    }
+    if (strcmp(level, "INFO") == 0) {
+        writeInfo("loglevel: set INFO");
+        Log::SetLevel(Log::LOG_LEVEL_INFO);
+        return true;
+    }
+    if (strcmp(level, "WARN") == 0) {
+        writeInfo("loglevel: set WARN");
+        Log::SetLevel(Log::LOG_LEVEL_WARN);
+        return true;
+    }
+    if (strcmp(level, "ERROR") == 0) {
+        writeInfo("loglevel: set ERROR");
+        Log::SetLevel(Log::LOG_LEVEL_ERROR);
+        return true;
+    }
+    if (strcmp(level, "FATAL") == 0) {
+        writeInfo("loglevel: set FATAL");
+        Log::SetLevel(Log::LOG_LEVEL_FATAL);
+        return true;
+    }
+    writeError("loglevel: unknown level");
+    return false;
+}
+
+bool CommandLine::executeInfoCommand(const CommandLineParser *parser)
+{
+    String ssid;
+    String pass;
+    if (Config::ReadWifiConfig(ssid, pass)) {
+        writeMessage("ssid=");
+        writeMessage(ssid.c_str());
+        writeMessage("\npass=");
+        writeMessage(pass.c_str());
+        writeMessage("\n");
+    } else {
+        writeError("ReadWifiConfig: fails");
+    }
+
+    String objectId;
+    if (Config::ReadObjectId(objectId)) {
+        writeMessage("objectId=");
+        writeMessage(objectId.c_str());
+        writeMessage("\n");
+    } else {
+        writeError("ReadObjectId: fails");
+    }
+    return true;
+}
+
 bool CommandLine::executeCommandLine(const char *line)
 {
     CommandLineParser parser(line);
@@ -166,5 +247,16 @@ bool CommandLine::executeCommandLine(const char *line)
     if (strcmp(parser.GetName(), "set_objectid") == 0) {
         return executeSetObjectIdCommand(&parser);
     }
+    if (strcmp(parser.GetName(), "log") == 0) {
+        return executeLogCommand(&parser);
+    }
+    if (strcmp(parser.GetName(), "loglevel") == 0) {
+        return executeLogLevelCommand(&parser);
+    }
+    if (strcmp(parser.GetName(), "info") == 0) {
+        return executeInfoCommand(&parser);
+    }
+    writeError("parser: unknown command");
     return true;
 }
+
