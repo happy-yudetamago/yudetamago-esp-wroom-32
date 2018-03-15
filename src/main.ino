@@ -34,11 +34,11 @@ static void showError() {
     while (true) {
         pixels.setPixelColor(NEO_PIXEL_STOCK_0, ERROR_COLOR);
         pixels.show();
-        delay(1000);
+        vTaskDelay(1000);
 
         pixels.setPixelColor(NEO_PIXEL_STOCK_0, BLACK_COLOR);
         pixels.show();
-        delay(1000);
+        vTaskDelay(1000);
     }
 }
 
@@ -58,12 +58,12 @@ static void reconnectWifi() {
         pixels.setPixelColor(NEO_PIXEL_STOCK_0, WAITING_COLOR);
         pixels.show();
         Log::Debug(".");
-        delay(500);
+        vTaskDelay(500);
 
         pixels.setPixelColor(NEO_PIXEL_STOCK_0, BLACK_COLOR);
         pixels.show();
         Log::Debug(".");
-        delay(500);
+        vTaskDelay(500);
     }
 
     Log::Info("WiFi connected.");
@@ -105,7 +105,7 @@ void setup() {
         cmd.InitializeBluetooth();
         while (1) {
             cmd.AnalyzeBluetooth();
-            delay(20);
+            vTaskDelay(20);
         }
         // can not reach here.
     }
@@ -138,7 +138,7 @@ void loop() {
         while (cmd.AnalyzeSerial()) {
         }
         if (digitalRead(STOCK_0_PIN) != LOW) {
-            delay(NCMB_BUTTON_INTERVAL);
+            vTaskDelay(NCMB_BUTTON_INTERVAL);
             continue;
         }
 
@@ -161,7 +161,24 @@ void loop() {
         }
 
         showExistState();
-        delay(NCMB_AFTER_BUTTON_INTERVAL);
+        /////////////////////////////////////////////////////////////
+        // Use vTaskDelay() instead of delay()                     //
+        // https://github.com/espressif/arduino-esp32/issues/595   //
+        //                                                         //
+        // Trouble log when using delay()                          //
+        // - IDLE (CPU 0)                                          //
+        // Tasks currently running:                                //
+        // CPU 0: wifi                                             //
+        // CPU 1: IDLE                                             //
+        // Task watchdog got triggered.                            //
+        // The following tasks did not reset the watchdog in time: //
+        // - IDLE (CPU 0)                                          //
+        // Tasks currently running:                                //
+        // CPU 0: wifi                                             //
+        // CPU 1: IDLE                                             //
+        // ...                                                     //
+        /////////////////////////////////////////////////////////////
+        vTaskDelay(NCMB_AFTER_BUTTON_INTERVAL);
     }
 
     String error;
