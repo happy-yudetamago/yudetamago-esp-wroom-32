@@ -4,7 +4,6 @@
 #include "Log.h"
 #include "Config.h"
 #include "CommandLine.h"
-#include "NCMBConfig.h"
 #include "YudetamagoClient.h"
 
 #define MODE_PIN          16
