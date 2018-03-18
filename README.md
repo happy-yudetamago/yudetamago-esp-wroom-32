@@ -140,6 +140,7 @@ info
 
 ```
 $ info
+version=0.0.1
 ssid=aterm-xxx-g
 pass=38xxxxxxxxx23
 objectId=KyPxxxxxxxxxx2Jf

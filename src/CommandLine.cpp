@@ -1,9 +1,10 @@
 #include <BluetoothSerial.h>
 
 #include "CommandLine.h"
+#include "Version.h"
 #include "Log.h"
 #include "Config.h"
-#include "CommandLineParser.hpp"
+#include "CommandLineParser.h"
 
 static BluetoothSerial SerialBT;
 
@@ -211,6 +212,10 @@ bool CommandLine::executeSetLogLevelCommand(const CommandLineParser *parser)
 
 bool CommandLine::executeInfoCommand(const CommandLineParser *parser)
 {
+    writeMessage("version=");
+    writeMessage(VERSION);
+    writeMessage("\n");
+
     String ssid;
     String pass;
     if (Config::ReadWifiConfig(ssid, pass)) {

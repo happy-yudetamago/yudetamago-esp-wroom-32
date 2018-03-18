@@ -1,6 +1,6 @@
 #pragma once
 
-#include "CommandLineParser.hpp"
+class CommandLineParser;
 
 class CommandLine {
 public:
