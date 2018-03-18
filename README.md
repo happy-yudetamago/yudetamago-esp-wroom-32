@@ -1,5 +1,150 @@
 # yudetamago-esd-wroom-02
 
+## for manufacturer
+
+### How to set up object id
+
+1. [yudetamago]  Power on with button x
+1. [Smart phone] Access bluetooth
+   Name : Yudetamago config
+1. [Smart phone] Access using App
+                 (support SPP profile)
+1. [Smart phone] Config objectId
+                 see CommandLineAPI
+1. [yudetamago]  Power OFF, and Power ON
+
+## for user
+
+### How to set up
+
+1. [yudetamago]  Power on with button x
+1. [Smart phone] Access bluetooth
+   Name : Yudetamago config
+1. [Smart phone] Access using App
+                 (support SPP profile)
+1. [Smart phone] Config your SSID, and PASSWORD
+                 see CommandLineAPI
+1. [yudetamago]  Power OFF, and Power ON
+
+## System Mode
+
+### Config Mode
+
+To config SSID, and objectId.
+
+1. [yudetamago]  Power on with button x
+
+### Normal Mode
+
+To show yudetamago state, and to change yudetamago state.
+
+1. [yudetamago]  Power on without button x
+
+## CommandLineAPI
+
+CommandLineAPI are enabled in two cases.
+
+1. Bluetooth on ConfigMode
+1. USB Serial on NormalMode
+
+### set_ssid
+
+Set Wifi SSID and Wifi Password command.
+After restart, new SSID is enabled.
+
+#### synopsis
+
+```
+set_ssid <Wifi SSID> <Wifi Password>
+```
+
+#### example
+
+```
+$ set_ssid aterm-xxx-g 38xxxxxxxxx23
+[INFO ] Successed to write wifi config.
+```
+
+### set_objectid
+
+Set yudetamago's objectId command.
+After restart, new objectId is enabled.
+
+#### synopsis
+
+```
+set_objectid <yudetamago objectId>
+```
+
+#### example
+
+```
+$ set_objectid KyPxxxxxxxxxx2Jf
+[INFO ] Successed to write objectId.
+```
+
+### set_loglevel
+
+Set log level commnad.
+
+#### synopsis
+
+```
+set_loglevel <loglevel>
+```
+
+loglevel : TRACE, DEBUG, INFO, WARN, ERROR, or FATAL
+
+#### example
+
+```
+$ set_loglevel TRACE
+[INFO ] loglevel: set TRACE
+```
+
+### log
+
+Show latest logs command.
+The log capacity is 64.
+
+#### synopsis
+
+```
+log
+```
+
+#### example
+
+```
+$ log
+[INFO ] Detected Normal mode.
+[INFO ] objectId : KyPxxxxxxxxxx2Jf
+[INFO ] WiFi connecting...
+[INFO ] WiFi connected.
+[INFO ] IP address: 192.168.11.xx
+[INFO ] Detected initial status: exists
+[INFO ] SetExistance: not exist
+```
+
+### info
+
+Show system info command.
+
+#### synopsis
+
+```
+info
+```
+
+#### example
+
+```
+$ info
+ssid=aterm-xxx-g
+pass=38xxxxxxxxx23
+objectId=KyPxxxxxxxxxx2Jf
+```
+
 ## for developer
 
 ### How to modify flash size
@@ -64,36 +209,10 @@ $ pio run --target upload
 ### monitor serial
 
 ```
-$ platformio serialports monitor -b 115200
+$ pio serialports monitor -b 115200
 ```
 
-## for manufacturer
-
-### How to set up object id
-
-1. [yudetamago]  Power on with button x
-1. [Smart phone] Access wifi
-   SSID : yudetamago_config
-   PASS : yudetamago
-1. [Smart phone] Access using web browser
-   http://192.168.4.1/admin
-1. [Smart phone] Config objectId
-1. [yudetamago]  Power OFF, and Power ON
-
-## for user
-
-### How to set up
-
-1. [yudetamago]  Power on with button x
-1. [Smart phone] Access wifi
-   SSID : yudetamago_config
-   PASS : yudetamago
-1. [Smart phone] Access using web browser
-   http://192.168.4.1
-1. [Smart phone] Config your SSID, and PASSWORD
-1. [yudetamago]  Power OFF, and Power ON
-
-## Library
+### Library
 
 - Adafruit NeoPixel Library (LGPL v3.0)
   https://github.com/adafruit/Adafruit_NeoPixel
@@ -101,14 +220,9 @@ $ platformio serialports monitor -b 115200
   https://github.com/simonratner/Arduino-SHA-256
   (Fix compile errors)
 
-## ToDo
+### ToDo
 
-- Error log(optional)
-  - View from /admin.html
 - 5 button(optional)
-- Web API
-  Wifi config
-  objectId
 
 ## Link
 
