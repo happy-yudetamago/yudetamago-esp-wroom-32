@@ -1,0 +1,42 @@
+@startuml
+class Log {
+  SetLevel()
+  Size()
+  GetLog()
+  Fatal()
+  Error()
+  Warn()
+  Info()
+  Debug()
+  Trace()
+}
+
+class Config {
+  Initialize()
+  ReadWifiConfig()
+  WriteWifiConfig()
+  ReadObjectId()
+  WriteObjectId()
+}
+
+class YudetamagoClient {
+  GetExistance()
+  SetExistance()
+}
+
+class CommandLine {
+  InitializeBluetooth()
+  AnalyzeBluetooth()
+  AnalyzeSerial()
+  Write()
+}
+
+YudetamagoClient -- NCMBConfig
+main -- YudetamagoClient
+main --- Config
+main -- CommandLine
+CommandLine -- Config
+CommandLine -- CommandLineParser
+main --- Log
+CommandLine -- Log
+@enduml
