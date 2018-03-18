@@ -168,7 +168,7 @@ bool CommandLine::executeLogCommand(const CommandLineParser *parser)
     return true;
 }
 
-bool CommandLine::executeLogLevelCommand(const CommandLineParser *parser)
+bool CommandLine::executeSetLogLevelCommand(const CommandLineParser *parser)
 {
     const char *level = parser->GetFirstArg();
     if (level == 0) {
@@ -250,8 +250,8 @@ bool CommandLine::executeCommandLine(const char *line)
     if (strcmp(parser.GetName(), "log") == 0) {
         return executeLogCommand(&parser);
     }
-    if (strcmp(parser.GetName(), "loglevel") == 0) {
-        return executeLogLevelCommand(&parser);
+    if (strcmp(parser.GetName(), "set_loglevel") == 0) {
+        return executeSetLogLevelCommand(&parser);
     }
     if (strcmp(parser.GetName(), "info") == 0) {
         return executeInfoCommand(&parser);
