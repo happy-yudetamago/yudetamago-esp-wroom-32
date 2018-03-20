@@ -1,7 +1,7 @@
 #include "unit_test.hpp"
 
 #include "string.h"
-#include "CommandLineParser.hpp"
+#include "CommandLineParser.h"
 
 void test_parse()
 {
