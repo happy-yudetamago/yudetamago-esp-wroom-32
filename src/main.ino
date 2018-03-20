@@ -101,6 +101,7 @@ void setup() {
         pixels.show();
 
         CommandLine cmd;
+        cmd.SetPixels(&pixels);
         cmd.InitializeBluetooth();
         while (1) {
             cmd.AnalyzeBluetooth();
@@ -133,6 +134,7 @@ void setup() {
 
 void loop() {
     static CommandLine cmd;
+    cmd.SetPixels(&pixels);
     for (int times=0; times<NCMB_ACCESS_INTERVAL; times+=NCMB_BUTTON_INTERVAL) {
         while (cmd.AnalyzeSerial()) {
         }

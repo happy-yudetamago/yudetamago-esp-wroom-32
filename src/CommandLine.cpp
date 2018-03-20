@@ -1,4 +1,5 @@
 #include <BluetoothSerial.h>
+#include <Adafruit_NeoPixel.h>
 
 #include "CommandLine.h"
 #include "Version.h"
@@ -8,7 +9,7 @@
 
 static BluetoothSerial SerialBT;
 
-CommandLine::CommandLine() : enableBluetooth(false)
+CommandLine::CommandLine() : enableBluetooth(false), pixels(0)
 {
 }
 
@@ -62,6 +63,11 @@ void CommandLine::Write(char ch)
         buf.concat(ch);
         break;
     }
+}
+
+void CommandLine::SetPixels(Adafruit_NeoPixel* pixels)
+{
+    this->pixels = pixels;
 }
 
 size_t CommandLine::writeMessage(const char *message)
@@ -169,6 +175,64 @@ bool CommandLine::executeLogCommand(const CommandLineParser *parser)
     return true;
 }
 
+bool CommandLine::executeSetLedCommand(const CommandLineParser *parser)
+{
+    if (!pixels) {
+        writeError("set_led: pixels is null.");
+        return false;
+    }
+
+    String info;
+    const char *parsedLedIndex = parser->GetFirstArg();
+    if (parsedLedIndex == 0) {
+        writeError("set_led: led index not found.");
+        return false;
+    }
+    int ledIndex = atoi(parsedLedIndex);
+    if (ledIndex < 0) {
+        writeError("set_led: led index region error.");
+        return false;
+    }
+
+    const char *parsedRedColor = parser->NextArg(parsedLedIndex);
+    if (parsedRedColor == 0) {
+        writeError("set_led: red color not found.");
+        return false;
+    }
+    int red = atoi(parsedRedColor);
+    if (red < 0 || 256 < red) {
+        writeError("set_led: red region error.");
+        return false;
+    }
+
+    const char *parsedGreenColor = parser->NextArg(parsedRedColor);
+    if (parsedGreenColor == 0) {
+        writeError("set_led: green color not found.");
+        return false;
+    }
+    int green = atoi(parsedGreenColor);
+    if (green < 0 || 256 < green) {
+        writeError("set_led: green region error.");
+        return false;
+    }
+
+    const char *parsedBlueColor = parser->NextArg(parsedGreenColor);
+    if (parsedBlueColor == 0) {
+        writeError("set_led: blue color not found.");
+        return false;
+    }
+    int blue = atoi(parsedBlueColor);
+    if (blue < 0 || 256 < blue) {
+        writeError("set_led: blue region error.");
+        return false;
+    }
+
+    uint32_t color = Adafruit_NeoPixel::Color(red, green, blue);
+    pixels->setPixelColor(ledIndex, color);
+    pixels->show();
+    return true;
+}
+
 bool CommandLine::executeSetLogLevelCommand(const CommandLineParser *parser)
 {
     const char *level = parser->GetFirstArg();
@@ -251,6 +315,9 @@ bool CommandLine::executeCommandLine(const char *line)
     }
     if (strcmp(parser.GetName(), "set_objectid") == 0) {
         return executeSetObjectIdCommand(&parser);
+    }
+    if (strcmp(parser.GetName(), "set_led") == 0) {
+        return executeSetLedCommand(&parser);
     }
     if (strcmp(parser.GetName(), "log") == 0) {
         return executeLogCommand(&parser);
