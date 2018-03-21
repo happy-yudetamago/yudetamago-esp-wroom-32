@@ -199,36 +199,46 @@ bool CommandLine::executeSetLedCommand(const CommandLineParser *parser)
         writeError("set_led: red color not found.");
         return false;
     }
-    int red = atoi(parsedRedColor);
-    if (red < 0 || 256 < red) {
-        writeError("set_led: red region error.");
-        return false;
-    }
+    uint8_t red = atoi(parsedRedColor);
 
     const char *parsedGreenColor = parser->NextArg(parsedRedColor);
     if (parsedGreenColor == 0) {
         writeError("set_led: green color not found.");
         return false;
     }
-    int green = atoi(parsedGreenColor);
-    if (green < 0 || 256 < green) {
-        writeError("set_led: green region error.");
-        return false;
-    }
+    uint8_t green = atoi(parsedGreenColor);
 
     const char *parsedBlueColor = parser->NextArg(parsedGreenColor);
     if (parsedBlueColor == 0) {
         writeError("set_led: blue color not found.");
         return false;
     }
-    int blue = atoi(parsedBlueColor);
-    if (blue < 0 || 256 < blue) {
-        writeError("set_led: blue region error.");
-        return false;
-    }
+    uint8_t blue = atoi(parsedBlueColor);
 
-    uint32_t color = Adafruit_NeoPixel::Color(red, green, blue);
-    pixels->setPixelColor(ledIndex, color);
+    printf("set_led: index=%d, red=%d, green=%d, blue=%d\n", ledIndex, red, green, blue);
+    pixels->setPixelColor(ledIndex, red, green, blue);
+
+    // [Problem] Neo Pixel Green LED can not turn off
+    // - Chip : ESP-32
+    // - When : After WiFi connected?
+    //
+    // Test result
+    // <command>                          <actual color>
+    // setPixelColor(0,   0,   0,   0) -> Green
+    // setPixelColor(0,   0, 255,   0) -> Green
+    // setPixelColor(0,   0,   0, 255) -> Blue
+    // setPixelColor(0, 128,   0,   0) -> Yellow (Red + Green?)
+    // setPixelColor(0, 255,   0,   0) -> Orange (Red + Green?)
+    // setPixelColor(0, 255, 255, 255) -> White
+    //
+    // WS2812B protocol(Neo Pixel)
+    // [Green 8bit] [Red 8bit] [Blue 8bit]
+    //
+    // Guess
+    // - only 1st color can not turn off
+    // - only 1st color is garbled
+    // - if continuously execute show(), 1st show() fails, but 2nd show() success?
+    pixels->show();
     pixels->show();
     return true;
 }

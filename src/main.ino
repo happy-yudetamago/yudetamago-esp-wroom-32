@@ -32,10 +32,32 @@ bool exists = true;
 static void showError() {
     while (true) {
         pixels.setPixelColor(NEO_PIXEL_STOCK_0, ERROR_COLOR);
+        // [Problem] Neo Pixel Green LED can not turn off
+        // - Chip : ESP-32
+        // - When : After WiFi connected?
+        //
+        // Test result
+        // <command>                          <actual color>
+        // setPixelColor(0,   0,   0,   0) -> Green
+        // setPixelColor(0,   0, 255,   0) -> Green
+        // setPixelColor(0,   0,   0, 255) -> Blue
+        // setPixelColor(0, 128,   0,   0) -> Yellow (Red + Green?)
+        // setPixelColor(0, 255,   0,   0) -> Orange (Red + Green?)
+        // setPixelColor(0, 255, 255, 255) -> White
+        //
+        // WS2812B protocol(Neo Pixel)
+        // [Green 8bit] [Red 8bit] [Blue 8bit]
+        //
+        // Guess
+        // - only 1st color can not turn off
+        // - only 1st color is garbled
+        // - if continuously execute show(), 1st show() fails, but 2nd show() success?
+        pixels.show();
         pixels.show();
         vTaskDelay(1000);
 
         pixels.setPixelColor(NEO_PIXEL_STOCK_0, BLACK_COLOR);
+        pixels.show();
         pixels.show();
         vTaskDelay(1000);
     }
@@ -56,10 +78,12 @@ static void reconnectWifi() {
     while (WiFi.status() != WL_CONNECTED) {
         pixels.setPixelColor(NEO_PIXEL_STOCK_0, WAITING_COLOR);
         pixels.show();
+        pixels.show();
         Log::Debug(".");
         vTaskDelay(500);
 
         pixels.setPixelColor(NEO_PIXEL_STOCK_0, BLACK_COLOR);
+        pixels.show();
         pixels.show();
         Log::Debug(".");
         vTaskDelay(500);
@@ -77,6 +101,7 @@ static void reconnectWifi() {
 
 static void showExistState() {
     pixels.setPixelColor(NEO_PIXEL_STOCK_0, exists? EXISTS_COLOR: NOT_EXSITS_COLOR);
+    pixels.show();
     pixels.show();
 }
 
@@ -98,6 +123,7 @@ void setup() {
     if (digitalRead(MODE_PIN) == LOW) {
         Log::Info("Detected Config mode.");
         pixels.setPixelColor(NEO_PIXEL_STOCK_0, CONFIG_COLOR);
+        pixels.show();
         pixels.show();
 
         CommandLine cmd;
