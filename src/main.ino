@@ -6,10 +6,10 @@
 #include "CommandLine.h"
 #include "YudetamagoClient.h"
 
-#define MODE_PIN          16
-#define STOCK_0_PIN       16
+#define MODE_PIN          14
+#define STOCK_0_PIN       14
 #define LED_PIN           13
-#define NEO_PIXEL_PIN     5
+#define NEO_PIXEL_PIN     12
 #define NUM_OF_NEO_PIXELS 1
 #define NEO_PIXEL_STOCK_0 0
 
@@ -29,8 +29,8 @@ const int NCMB_ACCESS_INTERVAL       = (5 * 60 * 1000);
 String object_id;
 bool exists = true;
 
-static void showError() {
-    while (true) {
+static void showError(int times) {
+    for (int i=0; times < 0 || i<times; i++) {
         pixels.setPixelColor(NEO_PIXEL_STOCK_0, ERROR_COLOR);
         // [Problem] Neo Pixel Green LED can not turn off
         // - Chip : ESP-32
@@ -68,7 +68,8 @@ static void reconnectWifi() {
     String pass;
     if (!Config::ReadWifiConfig(ssid, pass)) {
         Log::Error("Faild to read config.");
-        showError();
+        showError(10);
+        return;
     }
     // If forget mode(WIFI_STA), mode might be WIFI_AP_STA.
     WiFi.mode(WIFI_STA);
@@ -117,7 +118,7 @@ void setup() {
 
     if (!Config::Initialize()) {
         Log::Error("Faild to execute SPIFFS.begin().");
-        showError();
+        showError(-1);
     }
 
     if (digitalRead(MODE_PIN) == LOW) {
@@ -138,7 +139,7 @@ void setup() {
     Log::Info("Detected Normal mode.");
     if (!Config::ReadObjectId(object_id)) {
         Log::Error("Faild to read objectId.");
-        showError();
+        showError(-1);
     }
     String log = "objectId : ";
     log += object_id;
@@ -148,7 +149,8 @@ void setup() {
     String error;
     if (!YudetamagoClient::GetExistance(object_id.c_str(), exists, error) ) {
         Log::Error(error.c_str());
-        showError();
+        showError(10);
+        return;
     }
     if (exists) {
         Log::Info("Detected initial status: exists");
@@ -179,7 +181,8 @@ void loop() {
         String error;
         if (!YudetamagoClient::SetExistance(object_id.c_str(), exists, error)) {
             Log::Error(error.c_str());
-            showError();
+            showError(10);
+            return;
         }
         if (exists) {
             Log::Info("SetExistance: exist");
@@ -212,7 +215,8 @@ void loop() {
     bool existsPrev = exists;
     if (!YudetamagoClient::GetExistance(object_id.c_str(), exists, error) ) {
         Log::Error(error.c_str());
-        showError();
+        showError(10);
+        return;
     }
     if (exists == existsPrev) {
         Log::Debug("status not change:");
