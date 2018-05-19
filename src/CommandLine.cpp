@@ -1,4 +1,7 @@
-#include <BluetoothSerial.h>
+#include <BLEDevice.h>
+#include <BLEServer.h>
+#include <BLEUtils.h>
+#include <BLE2902.h>
 #include <Adafruit_NeoPixel.h>
 
 #include "CommandLine.h"
@@ -7,7 +10,44 @@
 #include "Config.h"
 #include "CommandLineParser.h"
 
-static BluetoothSerial SerialBT;
+bool deviceConnected = false;
+
+// See the following for generating UUIDs:
+// https://www.uuidgenerator.net/
+
+#define SERVICE_UUID           "6E400001-B5A3-F393-E0A9-E50E24DCCA9E" // UART service UUID
+#define CHARACTERISTIC_UUID_RX "6E400002-B5A3-F393-E0A9-E50E24DCCA9E"
+#define CHARACTERISTIC_UUID_TX "6E400003-B5A3-F393-E0A9-E50E24DCCA9E"
+
+
+class MyServerCallbacks: public BLEServerCallbacks {
+    void onConnect(BLEServer* pServer) {
+        deviceConnected = true;
+    };
+
+    void onDisconnect(BLEServer* pServer) {
+        deviceConnected = false;
+    }
+};
+
+class MyCallbacks: public BLECharacteristicCallbacks {
+public:
+    MyCallbacks(CommandLine* commandLine) : commandLine(commandLine) {
+    }
+
+    void onWrite(BLECharacteristic *pCharacteristic) {
+        std::string rxValue = pCharacteristic->getValue();
+
+        Serial.println("********");
+        for (int i=0; i<rxValue.length(); i++) {
+            Serial.write(rxValue[i]);
+            commandLine->Write(rxValue[i]);
+        }
+    }
+
+private:
+    CommandLine* commandLine;
+};
 
 CommandLine::CommandLine() : enableBluetooth(false), pixels(0)
 {
@@ -16,7 +56,34 @@ CommandLine::CommandLine() : enableBluetooth(false), pixels(0)
 void CommandLine::InitializeBluetooth()
 {
     enableBluetooth = true;
-    SerialBT.begin("Yudetamago config"); // Bluetooth device name
+    BLEDevice::init("Yudetamago config");
+
+    // Create the BLE Server
+    BLEServer *pServer = BLEDevice::createServer();
+    pServer->setCallbacks(new MyServerCallbacks());
+
+    // Create the BLE Service
+    BLEService *pService = pServer->createService(SERVICE_UUID);
+
+    // Create a BLE Characteristic
+    pCharacteristic = pService->createCharacteristic(
+        CHARACTERISTIC_UUID_TX,
+        BLECharacteristic::PROPERTY_NOTIFY);
+
+    pCharacteristic->addDescriptor(new BLE2902());
+
+    BLECharacteristic *pCharacteristic = pService->createCharacteristic(
+        CHARACTERISTIC_UUID_RX,
+        BLECharacteristic::PROPERTY_WRITE
+        );
+
+    pCharacteristic->setCallbacks(new MyCallbacks(this));
+
+    // Start the service
+    pService->start();
+
+    // Start advertising
+    pServer->getAdvertising()->start();
 }
 
 boolean CommandLine::AnalyzeBluetooth()
@@ -24,12 +91,14 @@ boolean CommandLine::AnalyzeBluetooth()
     if (!enableBluetooth) {
         return false;
     }
-    if (!SerialBT.available()) {
-        return false;
-    }
+    // std::string message = pCharacteristic->getValue();
+    // if (message.length() <= 0) {
+    //     return false;
+    // }
 
-    char ch = SerialBT.read();
-    Write(ch);
+    // for (std::string::iterator ite = message.begin(); ite != message.end(); ite++) {
+    //     Write(*ite);
+    // }
     return true;
 }
 
@@ -75,8 +144,7 @@ size_t CommandLine::writeMessage(const char *message)
     Serial.print(message);
     int length = strlen(message);
     if (enableBluetooth) {
-        size_t result = SerialBT.write((uint8_t*)message, length);
-        return result;
+        pCharacteristic->setValue((uint8_t*)message, length);
     }
     return length;
 }
@@ -85,7 +153,8 @@ size_t CommandLine::writeChar(char ch)
 {
     Serial.write(ch);
     if (enableBluetooth) {
-        return SerialBT.write(ch);
+        pCharacteristic->setValue((uint8_t*)&ch, 1);
+        return 1;
     }
     return 1;
 }
