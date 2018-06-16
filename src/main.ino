@@ -1,5 +1,6 @@
 #include <Adafruit_NeoPixel.h>
 #include <WiFi.h>
+#include <sstream>
 
 #include "Log.h"
 #include "Config.h"
@@ -8,6 +9,10 @@
 
 #define MODE_PIN          14
 #define STOCK_0_PIN       14
+#define STOCK_1_PIN       12
+#define STOCK_2_PIN       15
+#define STOCK_3_PIN        4
+#define STOCK_4_PIN       16
 #define NEO_PIXEL_PIN     27
 #define NUM_OF_NEO_PIXELS OBJECT_ID_SIZE
 #define NEO_PIXEL_STOCK_0 0
@@ -25,8 +30,8 @@ const uint32_t NOT_EXSITS_COLOR = Adafruit_NeoPixel::Color(255, 0, 0);
 const int NCMB_BUTTON_INTERVAL       = (100);
 const int NCMB_AFTER_BUTTON_INTERVAL = (1000);
 const int NCMB_ACCESS_INTERVAL       = (5 * 60 * 1000);
-String object_id;
-bool exists = true;
+
+bool object_exists[OBJECT_ID_SIZE] = {true, true, true, true, true};
 
 static void showError(int times) {
     for (int i=0; times < 0 || i<times; i++) {
@@ -72,6 +77,8 @@ static void reconnectWifi() {
     WiFi.begin(ssid.c_str(), pass.c_str());
 
     Log::Info("WiFi connecting...");
+    Log::Info(ssid.c_str());
+    Log::Info(pass.c_str());
     while (WiFi.status() != WL_CONNECTED) {
         pixels.setPixelColor(NEO_PIXEL_STOCK_0, WAITING_COLOR);
         pixels.show();
@@ -97,9 +104,72 @@ static void reconnectWifi() {
 }
 
 static void showExistState() {
-    pixels.setPixelColor(NEO_PIXEL_STOCK_0, exists? EXISTS_COLOR: NOT_EXSITS_COLOR);
+    for (int i=0; i<OBJECT_ID_SIZE; i++) {
+        String object_id;
+        Config::GetObjectId(i, object_id);
+
+        String error;
+        bool exists;
+        if (!YudetamagoClient::GetExistance(object_id.c_str(), exists, error) ) {
+            Log::Error(error.c_str());
+            showError(10);
+            return;
+        }
+        if (exists) {
+            std::ostringstream msg;
+            msg << "GetExistance: exist #";
+            msg << i;
+            Log::Debug(msg.str().c_str());
+        } else {
+            std::ostringstream msg;
+            msg << "GetExistance: not exist #";
+            msg << i;
+            Log::Debug(msg.str().c_str());
+        }
+        object_exists[i] = exists;
+
+        pixels.setPixelColor(i, exists? EXISTS_COLOR: NOT_EXSITS_COLOR);
+    }
     pixels.show();
     pixels.show();
+}
+
+static void toggleExistState(int index) {
+    object_exists[index] = !object_exists[index];
+    bool exists = object_exists[index];
+
+    if (exists) {
+        std::ostringstream msg;
+        msg << "Detected button pressed: exist #";
+        msg << index;
+        Log::Debug(msg.str().c_str());
+    } else {
+        std::ostringstream msg;
+        msg << "Detected button pressed: not exist #";
+        msg << index;
+        Log::Debug(msg.str().c_str());
+    }
+
+    String object_id;
+    Config::GetObjectId(index, object_id);
+
+    String error;
+    if (!YudetamagoClient::SetExistance(object_id.c_str(), exists, error)) {
+        Log::Error(error.c_str());
+        showError(10);
+        return;
+    }
+    if (exists) {
+        std::ostringstream msg;
+        msg << "SetExistance: exist #";
+        msg << index;
+        Log::Info(msg.str().c_str());
+    } else {
+        std::ostringstream msg;
+        msg << "SetExistance: not exist #";
+        msg << index;
+        Log::Info(msg.str().c_str());
+    }
 }
 
 void setup() {
@@ -108,8 +178,18 @@ void setup() {
 
     pixels.begin();
     pixels.setBrightness(255);
+    for (int i=0; i<OBJECT_ID_SIZE; i++) {
+        pixels.setPixelColor(i, BLACK_COLOR);
+    }
+    pixels.show();
+    pixels.show();
 
-    pinMode(MODE_PIN, INPUT);
+    pinMode(MODE_PIN,    INPUT_PULLUP);
+    pinMode(STOCK_0_PIN, INPUT_PULLUP);
+    pinMode(STOCK_1_PIN, INPUT_PULLUP);
+    pinMode(STOCK_2_PIN, INPUT_PULLUP);
+    pinMode(STOCK_3_PIN, INPUT_PULLUP);
+    pinMode(STOCK_4_PIN, INPUT_PULLUP);
 
     if (!Config::Initialize()) {
         Log::Error("Faild to Config::Initialize().");
@@ -138,23 +218,15 @@ void setup() {
         Log::Error("Faild to read objectId.");
         showError(-1);
     }
-    Config::GetObjectId(0, object_id);
-    String log = "objectId : ";
-    log += object_id;
-    Log::Info(log.c_str());
+    for (int i=0; i<OBJECT_ID_SIZE; i++) {
+        String object_id;
+        Config::GetObjectId(i, object_id);
+        String log = "objectId : ";
+        log += object_id;
+        Log::Info(log.c_str());
+    }
     reconnectWifi();
 
-    String error;
-    if (!YudetamagoClient::GetExistance(object_id.c_str(), exists, error) ) {
-        Log::Error(error.c_str());
-        showError(10);
-        return;
-    }
-    if (exists) {
-        Log::Info("Detected initial status: exists");
-    } else {
-        Log::Info("Detected initial status: not exists");
-    }
     showExistState();
 }
 
@@ -164,31 +236,24 @@ void loop() {
     for (int times=0; times<NCMB_ACCESS_INTERVAL; times+=NCMB_BUTTON_INTERVAL) {
         while (cmd.AnalyzeSerial()) {
         }
-        if (digitalRead(STOCK_0_PIN) != LOW) {
+
+        if (digitalRead(STOCK_0_PIN) == LOW) {
+            toggleExistState(0);
+        } else if (digitalRead(STOCK_1_PIN) == LOW) {
+            toggleExistState(1);
+        } else if (digitalRead(STOCK_2_PIN) == LOW) {
+            toggleExistState(2);
+        } else if (digitalRead(STOCK_3_PIN) == LOW) {
+            toggleExistState(3);
+        } else if (digitalRead(STOCK_4_PIN) == LOW) {
+            toggleExistState(4);
+        } else {
             vTaskDelay(NCMB_BUTTON_INTERVAL);
             continue;
         }
 
-        // button pressed
-        exists = !exists;
-        if (exists) {
-            Log::Debug("Detected button pressed: exist");
-        } else {
-            Log::Debug("Detected button pressed: not exist");
-        }
-        String error;
-        if (!YudetamagoClient::SetExistance(object_id.c_str(), exists, error)) {
-            Log::Error(error.c_str());
-            showError(10);
-            return;
-        }
-        if (exists) {
-            Log::Info("SetExistance: exist");
-        } else {
-            Log::Info("SetExistance: not exist");
-        }
-
         showExistState();
+
         /////////////////////////////////////////////////////////////
         // Use vTaskDelay() instead of delay()                     //
         // https://github.com/espressif/arduino-esp32/issues/595   //
@@ -209,21 +274,5 @@ void loop() {
         vTaskDelay(NCMB_AFTER_BUTTON_INTERVAL);
     }
 
-    String error;
-    bool existsPrev = exists;
-    if (!YudetamagoClient::GetExistance(object_id.c_str(), exists, error) ) {
-        Log::Error(error.c_str());
-        showError(10);
-        return;
-    }
-    if (exists == existsPrev) {
-        Log::Debug("status not change:");
-        return;
-    }
-    if (exists) {
-        Log::Info("Detected status change: exists");
-    } else {
-        Log::Info("Detected status change: not exists");
-    }
     showExistState();
 }
