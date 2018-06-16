@@ -11,6 +11,7 @@
 #include "CommandLineParser.h"
 
 bool deviceConnected = false;
+bool oldDeviceConnected = false;
 
 // See the following for generating UUIDs:
 // https://www.uuidgenerator.net/
@@ -59,7 +60,7 @@ void CommandLine::InitializeBluetooth()
     BLEDevice::init("Yudetamago config");
 
     // Create the BLE Server
-    BLEServer *pServer = BLEDevice::createServer();
+    pServer = BLEDevice::createServer();
     pServer->setCallbacks(new MyServerCallbacks());
 
     // Create the BLE Service
@@ -91,14 +92,18 @@ boolean CommandLine::AnalyzeBluetooth()
     if (!enableBluetooth) {
         return false;
     }
-    // std::string message = pCharacteristic->getValue();
-    // if (message.length() <= 0) {
-    //     return false;
-    // }
-
-    // for (std::string::iterator ite = message.begin(); ite != message.end(); ite++) {
-    //     Write(*ite);
-    // }
+    // disconnecting
+    if (!deviceConnected && oldDeviceConnected) {
+        delay(500); // give the bluetooth stack the chance to get things ready
+        pServer->startAdvertising(); // restart advertising
+        Serial.println("start advertising");
+        oldDeviceConnected = deviceConnected;
+    }
+    // connecting
+    if (deviceConnected && !oldDeviceConnected) {
+        // do stuff here on connecting
+        oldDeviceConnected = deviceConnected;
+    }
     return true;
 }
 
@@ -145,6 +150,8 @@ size_t CommandLine::writeMessage(const char *message)
     int length = strlen(message);
     if (enableBluetooth) {
         pCharacteristic->setValue((uint8_t*)message, length);
+        pCharacteristic->notify();
+        delay(10); // bluetooth stack will go into congestion, if too many packets are sent
     }
     return length;
 }
@@ -154,6 +161,8 @@ size_t CommandLine::writeChar(char ch)
     Serial.write(ch);
     if (enableBluetooth) {
         pCharacteristic->setValue((uint8_t*)&ch, 1);
+        pCharacteristic->notify();
+        delay(10); // bluetooth stack will go into congestion, if too many packets are sent
         return 1;
     }
     return 1;

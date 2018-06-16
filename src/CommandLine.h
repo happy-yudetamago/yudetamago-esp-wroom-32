@@ -3,6 +3,7 @@
 class CommandLineParser;
 class Adafruit_NeoPixel;
 class BLECharacteristic;
+class BLEServer;
 
 class CommandLine {
 public:
@@ -32,6 +33,7 @@ private:
     String  buf;
     boolean enableBluetooth;
     Adafruit_NeoPixel* pixels;
+    BLEServer *pServer;
     BLECharacteristic *pCharacteristic;
     uint8_t txValue = 0;
 };
