@@ -1,5 +1,9 @@
 #include "Log.h"
 
+#ifdef ARDUINO
+#include <Arduino.h>
+#endif
+
 static int log_size             = 0;
 static int log_next_write_index = 0;
 static int log_level            = Log::LOG_LEVEL_INFO;
@@ -8,6 +12,10 @@ static std::string logs[Log::LOG_CAPACITY];
 
 static void add(const std::string& message)
 {
+#ifdef ARDUINO
+    Serial.println(message.c_str());
+#endif
+
     logs[log_next_write_index] = message;
 
     ++log_next_write_index;

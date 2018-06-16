@@ -8,9 +8,8 @@
 
 #define MODE_PIN          14
 #define STOCK_0_PIN       14
-#define LED_PIN           13
-#define NEO_PIXEL_PIN     12
-#define NUM_OF_NEO_PIXELS 1
+#define NEO_PIXEL_PIN     27
+#define NUM_OF_NEO_PIXELS OBJECT_ID_SIZE
 #define NEO_PIXEL_STOCK_0 0
 
 Adafruit_NeoPixel pixels        = Adafruit_NeoPixel(NUM_OF_NEO_PIXELS,
@@ -110,7 +109,6 @@ void setup() {
     pixels.begin();
     pixels.setBrightness(255);
 
-    pinMode(LED_PIN,  OUTPUT);
     pinMode(MODE_PIN, INPUT);
 
     if (!Config::Initialize()) {
@@ -119,9 +117,9 @@ void setup() {
     }
 
     if (digitalRead(MODE_PIN) == LOW) {
-        Config::Read();
-
         Log::Info("Detected Config mode.");
+
+        Config::Read();
         pixels.setPixelColor(NEO_PIXEL_STOCK_0, CONFIG_COLOR);
         pixels.show();
         pixels.show();
