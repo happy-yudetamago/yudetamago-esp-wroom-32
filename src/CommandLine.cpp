@@ -207,8 +207,8 @@ bool CommandLine::executeSetSsidCommand(const CommandLineParser *parser)
 
     String ssid(parsedSsid);
     String pass(parsedPass);
-    if (Config::WriteWifiConfig(ssid, pass) &&
-        Config::ReadWifiConfig(ssid, pass)) {
+    Config::SetWifiConfig(ssid, pass);
+    if (Config::Write()) {
         writeInfo("Successed to write wifi config.");
     } else {
         writeError("Failed to write wifi config.");
@@ -218,21 +218,28 @@ bool CommandLine::executeSetSsidCommand(const CommandLineParser *parser)
 
 bool CommandLine::executeSetObjectIdCommand(const CommandLineParser *parser)
 {
-    String info;
+    // validate args
     const char *parsedObjectId = parser->GetFirstArg();
-    if (parsedObjectId == 0) {
-        writeError("set_objectid: ObjectID not found.");
-        return false;
+    for (int i=0; i<OBJECT_ID_SIZE; i++) {
+        if (parsedObjectId == 0) {
+            writeError("set_objectid: too few arguments.");
+            return false;
+        }
+        parsedObjectId = parser->NextArg(parsedObjectId);
     }
-
-    if (parser->NextArg(parsedObjectId) != 0) {
+    if (parsedObjectId != 0) {
         writeError("set_objectid: too many arguments.");
         return false;
     }
 
-    String objectId(parsedObjectId);
-    if (Config::WriteObjectId(objectId) &&
-        Config::ReadObjectId(objectId)) {
+    // write data
+    parsedObjectId = parser->GetFirstArg();
+    for (int i=0; i<OBJECT_ID_SIZE; i++) {
+        String objectId(parsedObjectId);
+        Config::SetObjectId(i, objectId);
+        parsedObjectId = parser->NextArg(parsedObjectId);
+    }
+    if (Config::Write()) {
         writeInfo("Successed to write objectId.");
     } else {
         writeError("Failed to write objectId.");
@@ -370,23 +377,19 @@ bool CommandLine::executeInfoCommand(const CommandLineParser *parser)
 
     String ssid;
     String pass;
-    if (Config::ReadWifiConfig(ssid, pass)) {
-        writeMessage("ssid=");
-        writeMessage(ssid.c_str());
-        writeMessage("\npass=");
-        writeMessage(pass.c_str());
-        writeMessage("\n");
-    } else {
-        writeError("ReadWifiConfig: fails");
-    }
+    Config::GetWifiConfig(ssid, pass);
+    writeMessage("ssid=");
+    writeMessage(ssid.c_str());
+    writeMessage("\npass=");
+    writeMessage(pass.c_str());
+    writeMessage("\n");
 
-    String objectId;
-    if (Config::ReadObjectId(objectId)) {
+    for (int i=0; i<OBJECT_ID_SIZE; i++) {
+        String objectId;
+        Config::GetObjectId(i, objectId);
         writeMessage("objectId=");
         writeMessage(objectId.c_str());
         writeMessage("\n");
-    } else {
-        writeError("ReadObjectId: fails");
     }
     return true;
 }

@@ -2,13 +2,16 @@
 
 #include <Arduino.h>
 
+#define OBJECT_ID_SIZE 5
+
 class Config
 {
 public:
     static bool Initialize();
-    static bool ReadWifiConfig(String& ssid, String& pass);
-    static bool WriteWifiConfig(const String& ssid, const String& pass);
-    static bool ReadObjectId(String& objectId);
-    static bool WriteObjectId(const String& objectId);
+    static void GetWifiConfig(String& ssid, String& pass);
+    static void SetWifiConfig(const String& ssid, const String& pass);
+    static bool GetObjectId(int index, String& objectId);
+    static bool SetObjectId(int index, const String& objectId);
+    static bool Read();
+    static bool Write();
 };
-

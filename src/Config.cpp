@@ -1,9 +1,14 @@
 #include "Config.h"
 
 #include <SPIFFS.h>
+#include <vector>
 
 const char* config_file = "/config.txt";
 const char* objectids_file = "/objectids.txt";
+
+static String wifi_ssid;
+static String wifi_pass;
+static String objectIds[OBJECT_ID_SIZE];
 
 bool Config::Initialize()
 {
@@ -12,51 +17,84 @@ bool Config::Initialize()
     return SPIFFS.begin(true); // true: formatOnFail
 }
 
-bool Config::ReadWifiConfig(String& ssid, String& pass)
+void Config::GetWifiConfig(String& ssid, String& pass)
 {
-    File fd = SPIFFS.open(config_file, "r");
-    if (!fd) {
+    ssid = wifi_ssid;
+    pass = wifi_pass;
+}
+
+void Config::SetWifiConfig(const String& ssid, const String& pass)
+{
+    wifi_ssid = ssid;
+    wifi_pass = pass;
+}
+
+bool Config::GetObjectId(int index, String& objectId)
+{
+    if (index < 0 || OBJECT_ID_SIZE <= index) {
         return false;
     }
-    ssid = fd.readStringUntil('\n');
+    objectId = objectIds[index];
+    return true;
+}
+
+bool Config::SetObjectId(int index, const String& objectId)
+{
+    if (index < 0 || OBJECT_ID_SIZE <= index) {
+        return false;
+    }
+    objectIds[index] = objectId;
+    return true;
+}
+
+bool Config::Read()
+{
+    File fdConfig = SPIFFS.open(config_file, "r");
+    if (!fdConfig) {
+        return false;
+    }
+    String ssid = fdConfig.readStringUntil('\n');
     ssid.trim();
-    pass = fd.readStringUntil('\n');
+    String pass = fdConfig.readStringUntil('\n');
     pass.trim();
-    fd.close();
+    fdConfig.close();
+    SetWifiConfig(ssid, pass);
+
+    File fdObjectIds = SPIFFS.open(objectids_file, "r");
+    if (!fdObjectIds) {
+        return false;
+    }
+    for (int i=0; i<OBJECT_ID_SIZE; i++) {
+        String objectId = fdObjectIds.readStringUntil('\n');
+        objectId.trim();
+        SetObjectId(i, objectId);
+    }
+    fdObjectIds.close();
     return true;
 }
 
-bool Config::WriteWifiConfig(const String& ssid, const String& pass)
+bool Config::Write()
 {
-    File fd = SPIFFS.open(config_file, "w");
-    if (!fd) {
+    File fdConfig = SPIFFS.open(config_file, "w");
+    if (!fdConfig) {
         return false;
     }
-    fd.println(ssid);
-    fd.println(pass);
-    fd.close();
-    return true;
-}
+    String ssid;
+    String pass;
+    GetWifiConfig(ssid, pass);
+    fdConfig.println(ssid);
+    fdConfig.println(pass);
+    fdConfig.close();
 
-bool Config::ReadObjectId(String& objectId)
-{
-    File fd = SPIFFS.open(objectids_file, "r");
-    if (!fd) {
+    File fdObjectIds = SPIFFS.open(objectids_file, "w");
+    if (!fdObjectIds) {
         return false;
     }
-    objectId = fd.readStringUntil('\n');
-    objectId.trim();
-    fd.close();
-    return true;
-}
-
-bool Config::WriteObjectId(const String& objectId)
-{
-    File fd = SPIFFS.open(objectids_file, "w");
-    if (!fd) {
-        return false;
+    for (int i=0; i<OBJECT_ID_SIZE; i++) {
+        String objectId;
+        GetObjectId(i, objectId);
+        fdObjectIds.println(objectId);
     }
-    fd.println(objectId);
-    fd.close();
+    fdObjectIds.close();
     return true;
 }

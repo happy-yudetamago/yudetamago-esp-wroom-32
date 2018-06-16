@@ -66,11 +66,8 @@ static void showError(int times) {
 static void reconnectWifi() {
     String ssid;
     String pass;
-    if (!Config::ReadWifiConfig(ssid, pass)) {
-        Log::Error("Faild to read config.");
-        showError(10);
-        return;
-    }
+    Config::GetWifiConfig(ssid, pass);
+
     // If forget mode(WIFI_STA), mode might be WIFI_AP_STA.
     WiFi.mode(WIFI_STA);
     WiFi.begin(ssid.c_str(), pass.c_str());
@@ -117,11 +114,13 @@ void setup() {
     pinMode(MODE_PIN, INPUT);
 
     if (!Config::Initialize()) {
-        Log::Error("Faild to execute SPIFFS.begin().");
+        Log::Error("Faild to Config::Initialize().");
         showError(-1);
     }
 
     if (digitalRead(MODE_PIN) == LOW) {
+        Config::Read();
+
         Log::Info("Detected Config mode.");
         pixels.setPixelColor(NEO_PIXEL_STOCK_0, CONFIG_COLOR);
         pixels.show();
@@ -137,10 +136,11 @@ void setup() {
         // can not reach here.
     }
     Log::Info("Detected Normal mode.");
-    if (!Config::ReadObjectId(object_id)) {
+    if (!Config::Read()) {
         Log::Error("Faild to read objectId.");
         showError(-1);
     }
+    Config::GetObjectId(0, object_id);
     String log = "objectId : ";
     log += object_id;
     Log::Info(log.c_str());
