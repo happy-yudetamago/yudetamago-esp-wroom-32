@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Arduino.h>
+#include <string>
 
 class Log
 {
@@ -18,11 +18,12 @@ public:
 public:
     static void SetLevel(int level);
     static int  Size();
-    static bool GetLog(int index, String& log);
+    static bool GetLog(int index, std::string& log);
     static void Fatal(const char *message);
     static void Error(const char *message);
     static void Warn(const char *message);
     static void Info(const char *message);
     static void Debug(const char *message);
     static void Trace(const char *message);
+    static void Clean();
 };

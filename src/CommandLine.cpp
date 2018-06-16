@@ -243,7 +243,7 @@ bool CommandLine::executeSetObjectIdCommand(const CommandLineParser *parser)
 bool CommandLine::executeLogCommand(const CommandLineParser *parser)
 {
     for (int i=0; i<Log::LOG_CAPACITY; i++) {
-        String log;
+        std::string log;
         if (!Log::GetLog(i, log)) {
             return true;
         }
