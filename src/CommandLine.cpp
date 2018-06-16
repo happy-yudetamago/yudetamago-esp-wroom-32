@@ -41,7 +41,6 @@ public:
 
         Serial.println("********");
         for (int i=0; i<rxValue.length(); i++) {
-            Serial.write(rxValue[i]);
             commandLine->Write(rxValue[i]);
         }
     }
