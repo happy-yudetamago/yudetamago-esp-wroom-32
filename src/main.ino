@@ -33,6 +33,9 @@ const int NCMB_ACCESS_INTERVAL       = (5 * 60 * 1000);
 
 bool object_exists[OBJECT_ID_SIZE] = {true, true, true, true, true};
 
+CommandLine commandLine;
+
+
 static void showError(int times) {
     for (int i=0; times < 0 || i<times; i++) {
         pixels.setPixelColor(NEO_PIXEL_STOCK_0, ERROR_COLOR);
@@ -183,6 +186,7 @@ void setup() {
     }
     pixels.show();
     pixels.show();
+    commandLine.SetPixels(&pixels);
 
     pinMode(MODE_PIN,    INPUT_PULLUP);
     pinMode(STOCK_0_PIN, INPUT_PULLUP);
@@ -193,7 +197,10 @@ void setup() {
 
     if (!Config::Initialize()) {
         Log::Error("Faild to Config::Initialize().");
-        showError(-1);
+        while (1) {
+            showError(1);
+            while (commandLine.AnalyzeSerial());
+        }
     }
 
     if (digitalRead(MODE_PIN) == LOW) {
@@ -204,11 +211,9 @@ void setup() {
         pixels.show();
         pixels.show();
 
-        CommandLine cmd;
-        cmd.SetPixels(&pixels);
-        cmd.InitializeBluetooth();
+        commandLine.InitializeBluetooth();
         while (1) {
-            cmd.AnalyzeBluetooth();
+            commandLine.AnalyzeBluetooth();
             vTaskDelay(20);
         }
         // can not reach here.
@@ -216,7 +221,10 @@ void setup() {
     Log::Info("Detected Normal mode.");
     if (!Config::Read()) {
         Log::Error("Faild to read objectId.");
-        showError(-1);
+        while (1) {
+            showError(1);
+            while (commandLine.AnalyzeSerial());
+        }
     }
     for (int i=0; i<OBJECT_ID_SIZE; i++) {
         String object_id;
@@ -231,11 +239,8 @@ void setup() {
 }
 
 void loop() {
-    static CommandLine cmd;
-    cmd.SetPixels(&pixels);
     for (int times=0; times<NCMB_ACCESS_INTERVAL; times+=NCMB_BUTTON_INTERVAL) {
-        while (cmd.AnalyzeSerial()) {
-        }
+        while (commandLine.AnalyzeSerial());
 
         if (digitalRead(STOCK_0_PIN) == LOW) {
             toggleExistState(0);
