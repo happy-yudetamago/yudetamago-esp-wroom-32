@@ -7,6 +7,12 @@
 #include "CommandLine.h"
 #include "YudetamagoClient.h"
 
+/**
+ * Enable D_DIAG_NEO_PIXEL_VARIABLE_LED_PER_SEC,
+ * if you do diag Neo Pixel LEDs.
+ */
+// #define D_DIAG_NEO_PIXEL_VARIABLE_LED_PER_SEC
+
 #define MODE_PIN          14
 #define STOCK_0_PIN       14
 #define STOCK_1_PIN       12
@@ -175,12 +181,39 @@ static void toggleExistState(int index) {
     }
 }
 
+void singleDiag() {
+#ifdef D_DIAG_NEO_PIXEL_VARIABLE_LED_PER_SEC
+    const uint32_t colors[] = {
+        Adafruit_NeoPixel::Color(0,   0,   0),
+        Adafruit_NeoPixel::Color(255, 0,   0),
+        Adafruit_NeoPixel::Color(0,   255, 0),
+        Adafruit_NeoPixel::Color(0,   0,   255),
+        Adafruit_NeoPixel::Color(255, 255, 0),
+        Adafruit_NeoPixel::Color(255, 0,   255),
+        Adafruit_NeoPixel::Color(0,   255, 255),
+        Adafruit_NeoPixel::Color(255, 255, 255)};
+    const int colorsSize = sizeof(colors)/sizeof(colors[0]);
+    while (1) {
+        for (int c=0; c<colorsSize; c++) {
+            uint32_t color = colors[c];
+            for (int i=0; i<OBJECT_ID_SIZE; i++) {
+                pixels.setPixelColor(i, color);
+            }
+            pixels.show();
+            pixels.show();
+            vTaskDelay(1000);
+        }
+    }
+#endif
+}
+
 void setup() {
     Serial.begin(115200);
     Serial.println("");
 
     pixels.begin();
     pixels.setBrightness(255);
+    singleDiag();
     for (int i=0; i<OBJECT_ID_SIZE; i++) {
         pixels.setPixelColor(i, BLACK_COLOR);
     }
