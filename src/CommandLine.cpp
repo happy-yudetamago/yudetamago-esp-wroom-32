@@ -322,8 +322,23 @@ bool CommandLine::executeSetLedCommand(const CommandLineParser *parser)
     // - only 1st color can not turn off
     // - only 1st color is garbled
     // - if continuously execute show(), 1st show() fails, but 2nd show() success?
+    //
+    // Solution
+    //   pixels.show();
+    //   pixels.show();
+
+    // [Problem] Neo Pixel LED rarely change a different color.
+    //
+    // Solution
+    //   portMUX_TYPE mux = portMUX_INITIALIZER_UNLOCKED;
+    //   taskENTER_CRITICAL(&mux);
+    //   pixels.show();
+    //   taskEXIT_CRITICAL(&mux);
+    portMUX_TYPE mux = portMUX_INITIALIZER_UNLOCKED;
+    taskENTER_CRITICAL(&mux);
     pixels->show();
     pixels->show();
+    taskEXIT_CRITICAL(&mux);
     return true;
 }
 

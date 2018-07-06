@@ -62,8 +62,23 @@ static void showNeoPixel() {
     // - only 1st color can not turn off
     // - only 1st color is garbled
     // - if continuously execute show(), 1st show() fails, but 2nd show() success?
+    //
+    // Solution
+    //   pixels.show();
+    //   pixels.show();
+
+    // [Problem] Neo Pixel LED rarely change a different color.
+    //
+    // Solution
+    //   portMUX_TYPE mux = portMUX_INITIALIZER_UNLOCKED;
+    //   taskENTER_CRITICAL(&mux);
+    //   pixels.show();
+    //   taskEXIT_CRITICAL(&mux);
+    portMUX_TYPE mux = portMUX_INITIALIZER_UNLOCKED;
+    taskENTER_CRITICAL(&mux);
     pixels.show();
     pixels.show();
+    taskEXIT_CRITICAL(&mux);
 }
 
 static void showError(int times) {
@@ -211,7 +226,6 @@ void setup() {
 
     pixels.begin();
     pixels.setBrightness(255);
-    singleDiag();
     for (int i=0; i<OBJECT_ID_SIZE; i++) {
         pixels.setPixelColor(i, BLACK_COLOR);
     }
@@ -263,6 +277,7 @@ void setup() {
         Log::Info(log.c_str());
     }
     reconnectWifi();
+    singleDiag();
 
     showExistState();
 }
