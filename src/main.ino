@@ -75,10 +75,10 @@ static void showNeoPixel() {
     //   pixels.show();
     //   taskEXIT_CRITICAL(&mux);
     portMUX_TYPE mux = portMUX_INITIALIZER_UNLOCKED;
-    taskENTER_CRITICAL(&mux);
+    portENTER_CRITICAL(&mux);
     pixels.show();
     pixels.show();
-    taskEXIT_CRITICAL(&mux);
+    portEXIT_CRITICAL(&mux);
 }
 
 static void showError(int times) {
