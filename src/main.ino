@@ -13,6 +13,12 @@
  */
 // #define D_DIAG_NEO_PIXEL_VARIABLE_LED_PER_SEC
 
+/**
+ * Enable D_DIAG_NEO_PIXEL_BLACK_LED,
+ * if you do diag Neo Pixel LEDs.
+ */
+// #define D_DIAG_NEO_PIXEL_BLACK_LED
+
 #define MODE_PIN          14
 #define STOCK_0_PIN       14
 #define STOCK_1_PIN       12
@@ -216,6 +222,15 @@ void singleDiag() {
             showNeoPixel();
             vTaskDelay(1000);
         }
+    }
+#endif
+#ifdef D_DIAG_NEO_PIXEL_BLACK_LED
+    while (1) {
+        for (int i=0; i<OBJECT_ID_SIZE; i++) {
+            pixels.setPixelColor(i, BLACK_COLOR);
+        }
+        showNeoPixel();
+        vTaskDelay(200);
     }
 #endif
 }
