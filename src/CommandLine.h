@@ -1,7 +1,8 @@
 #pragma once
 
+#include <NeoPixelBus.h>
+
 class CommandLineParser;
-class Adafruit_NeoPixel;
 class BLECharacteristic;
 class BLEServer;
 
@@ -14,7 +15,7 @@ public:
     boolean AnalyzeBluetooth();
     boolean AnalyzeSerial();
     void Write(char ch);
-    void SetPixels(Adafruit_NeoPixel* pixels);
+    void SetPixels(NeoPixelBus<NeoGrbFeature, Neo800KbpsMethod>* pixels);
 
 private:
     size_t writeMessage(const char *message);
@@ -32,7 +33,7 @@ private:
 private:
     String  buf;
     boolean enableBluetooth;
-    Adafruit_NeoPixel* pixels;
+    NeoPixelBus<NeoGrbFeature, Neo800KbpsMethod>* pixels;
     BLEServer *pServer;
     BLECharacteristic *pCharacteristic;
     uint8_t txValue = 0;

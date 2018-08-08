@@ -138,7 +138,7 @@ void CommandLine::Write(char ch)
     }
 }
 
-void CommandLine::SetPixels(Adafruit_NeoPixel* pixels)
+void CommandLine::SetPixels(NeoPixelBus<NeoGrbFeature, Neo800KbpsMethod>* pixels)
 {
     this->pixels = pixels;
 }
@@ -300,7 +300,7 @@ bool CommandLine::executeSetLedCommand(const CommandLineParser *parser)
     uint8_t blue = atoi(parsedBlueColor);
 
     printf("set_led: index=%d, red=%d, green=%d, blue=%d\n", ledIndex, red, green, blue);
-    pixels->setPixelColor(ledIndex, red, green, blue);
+    pixels->SetPixelColor(ledIndex, RgbColor(red, green, blue));
 
     // [Problem] Neo Pixel Green LED can not turn off
     // - Chip : ESP-32
@@ -334,11 +334,22 @@ bool CommandLine::executeSetLedCommand(const CommandLineParser *parser)
     //   taskENTER_CRITICAL(&mux);
     //   pixels.show();
     //   taskEXIT_CRITICAL(&mux);
-    portMUX_TYPE mux = portMUX_INITIALIZER_UNLOCKED;
-    taskENTER_CRITICAL(&mux);
-    pixels->show();
-    pixels->show();
-    taskEXIT_CRITICAL(&mux);
+    //
+    // portMUX_TYPE mux = portMUX_INITIALIZER_UNLOCKED;
+    // taskENTER_CRITICAL(&mux);
+    // pixels->show();
+    // pixels->show();
+    // taskEXIT_CRITICAL(&mux);
+
+    // Change library from Adafruit to Makuna/NeoPixelBus.
+    //
+    // EDIT: I just tried https://github.com/Makuna/NeoPixelBus with total success,
+    // even with WiFi and Serial. Had to install from git, though,
+    // due to Makuna/NeoPixelBus#212 on Linux. I can confirm that's a good workaround
+    // until the Adafruit library gets hardware support on ESP32.
+    //
+    // https://github.com/adafruit/Adafruit_NeoPixel/issues/139
+    pixels->Show();
     return true;
 }
 

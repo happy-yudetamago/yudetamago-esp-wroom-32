@@ -1,4 +1,4 @@
-#include <Adafruit_NeoPixel.h>
+#include <NeoPixelBus.h>
 #include <WiFi.h>
 #include <sstream>
 
@@ -29,16 +29,14 @@
 #define NUM_OF_NEO_PIXELS OBJECT_ID_SIZE
 #define NEO_PIXEL_STOCK_0 0
 
-Adafruit_NeoPixel pixels        = Adafruit_NeoPixel(NUM_OF_NEO_PIXELS,
-                                                    NEO_PIXEL_PIN,
-                                                    NEO_GRB + NEO_KHZ800);
+NeoPixelBus<NeoGrbFeature, Neo800KbpsMethod> pixels(NUM_OF_NEO_PIXELS, NEO_PIXEL_PIN);
 
-const uint32_t BLACK_COLOR      = Adafruit_NeoPixel::Color(0, 0, 0);
-const uint32_t ERROR_COLOR      = Adafruit_NeoPixel::Color(255, 0, 0);
-const uint32_t WAITING_COLOR    = Adafruit_NeoPixel::Color(255, 255, 51);
-const uint32_t CONFIG_COLOR     = Adafruit_NeoPixel::Color(255, 255, 255);
-const uint32_t EXISTS_COLOR     = Adafruit_NeoPixel::Color(0, 0, 0);
-const uint32_t NOT_EXSITS_COLOR = Adafruit_NeoPixel::Color(255, 0, 0);
+RgbColor BLACK_COLOR(0, 0, 0);
+RgbColor ERROR_COLOR(255, 0, 0);
+RgbColor WAITING_COLOR(255, 255, 51);
+RgbColor CONFIG_COLOR(255, 255, 255);
+RgbColor EXISTS_COLOR(0, 0, 0);
+RgbColor NOT_EXSITS_COLOR(255, 0, 0);
 const int NCMB_BUTTON_INTERVAL       = (100);
 const int NCMB_AFTER_BUTTON_INTERVAL = (1000);
 const int NCMB_ACCESS_INTERVAL       = (5 * 60 * 1000);
@@ -80,20 +78,31 @@ static void showNeoPixel() {
     //   taskENTER_CRITICAL(&mux);
     //   pixels.show();
     //   taskEXIT_CRITICAL(&mux);
-    portMUX_TYPE mux = portMUX_INITIALIZER_UNLOCKED;
-    portENTER_CRITICAL(&mux);
-    pixels.show();
-    pixels.show();
-    portEXIT_CRITICAL(&mux);
+    //
+    // portMUX_TYPE mux = portMUX_INITIALIZER_UNLOCKED;
+    // taskENTER_CRITICAL(&mux);
+    // pixels->show();
+    // pixels->show();
+    // taskEXIT_CRITICAL(&mux);
+
+    // Change library from Adafruit to Makuna/NeoPixelBus.
+    //
+    // EDIT: I just tried https://github.com/Makuna/NeoPixelBus with total success,
+    // even with WiFi and Serial. Had to install from git, though,
+    // due to Makuna/NeoPixelBus#212 on Linux. I can confirm that's a good workaround
+    // until the Adafruit library gets hardware support on ESP32.
+    //
+    // https://github.com/adafruit/Adafruit_NeoPixel/issues/139
+    pixels.Show();
 }
 
 static void showError(int times) {
     for (int i=0; times < 0 || i<times; i++) {
-        pixels.setPixelColor(NEO_PIXEL_STOCK_0, ERROR_COLOR);
+        pixels.SetPixelColor(NEO_PIXEL_STOCK_0, ERROR_COLOR);
         showNeoPixel();
         vTaskDelay(1000);
 
-        pixels.setPixelColor(NEO_PIXEL_STOCK_0, BLACK_COLOR);
+        pixels.SetPixelColor(NEO_PIXEL_STOCK_0, BLACK_COLOR);
         showNeoPixel();
         vTaskDelay(1000);
     }
@@ -112,12 +121,12 @@ static void reconnectWifi() {
     Log::Info(ssid.c_str());
     Log::Info(pass.c_str());
     while (WiFi.status() != WL_CONNECTED) {
-        pixels.setPixelColor(NEO_PIXEL_STOCK_0, WAITING_COLOR);
+        pixels.SetPixelColor(NEO_PIXEL_STOCK_0, WAITING_COLOR);
         showNeoPixel();
         Log::Debug(".");
         vTaskDelay(500);
 
-        pixels.setPixelColor(NEO_PIXEL_STOCK_0, BLACK_COLOR);
+        pixels.SetPixelColor(NEO_PIXEL_STOCK_0, BLACK_COLOR);
         showNeoPixel();
         Log::Debug(".");
         vTaskDelay(500);
@@ -158,7 +167,7 @@ static void showExistState() {
         }
         object_exists[i] = exists;
 
-        pixels.setPixelColor(i, exists? EXISTS_COLOR: NOT_EXSITS_COLOR);
+        pixels.SetPixelColor(i, exists? EXISTS_COLOR: NOT_EXSITS_COLOR);
     }
     showNeoPixel();
 }
@@ -203,21 +212,21 @@ static void toggleExistState(int index) {
 
 void singleDiag() {
 #ifdef D_DIAG_NEO_PIXEL_VARIABLE_LED_PER_SEC
-    const uint32_t colors[] = {
-        Adafruit_NeoPixel::Color(0,   0,   0),
-        Adafruit_NeoPixel::Color(255, 0,   0),
-        Adafruit_NeoPixel::Color(0,   255, 0),
-        Adafruit_NeoPixel::Color(0,   0,   255),
-        Adafruit_NeoPixel::Color(255, 255, 0),
-        Adafruit_NeoPixel::Color(255, 0,   255),
-        Adafruit_NeoPixel::Color(0,   255, 255),
-        Adafruit_NeoPixel::Color(255, 255, 255)};
+    const RgbColor colors[] = {
+        RgbColor(0,   0,   0),
+        RgbColor(255, 0,   0),
+        RgbColor(0,   255, 0),
+        RgbColor(0,   0,   255),
+        RgbColor(255, 255, 0),
+        RgbColor(255, 0,   255),
+        RgbColor(0,   255, 255),
+        RgbColor(255, 255, 255)};
     const int colorsSize = sizeof(colors)/sizeof(colors[0]);
     while (1) {
         for (int c=0; c<colorsSize; c++) {
-            uint32_t color = colors[c];
+            RgbColor color = colors[c];
             for (int i=0; i<OBJECT_ID_SIZE; i++) {
-                pixels.setPixelColor(i, color);
+                pixels.SetPixelColor(i, color);
             }
             showNeoPixel();
             vTaskDelay(1000);
@@ -227,7 +236,7 @@ void singleDiag() {
 #ifdef D_DIAG_NEO_PIXEL_BLACK_LED
     while (1) {
         for (int i=0; i<OBJECT_ID_SIZE; i++) {
-            pixels.setPixelColor(i, BLACK_COLOR);
+            pixels.SetPixelColor(i, BLACK_COLOR);
         }
         showNeoPixel();
         vTaskDelay(200);
@@ -239,10 +248,9 @@ void setup() {
     Serial.begin(115200);
     Serial.println("");
 
-    pixels.begin();
-    pixels.setBrightness(255);
+    pixels.Begin();
     for (int i=0; i<OBJECT_ID_SIZE; i++) {
-        pixels.setPixelColor(i, BLACK_COLOR);
+        pixels.SetPixelColor(i, BLACK_COLOR);
     }
     showNeoPixel();
     commandLine.SetPixels(&pixels);
@@ -266,7 +274,7 @@ void setup() {
         Log::Info("Detected Config mode.");
 
         Config::Read();
-        pixels.setPixelColor(NEO_PIXEL_STOCK_0, CONFIG_COLOR);
+        pixels.SetPixelColor(NEO_PIXEL_STOCK_0, CONFIG_COLOR);
         showNeoPixel();
 
         commandLine.InitializeBluetooth();
