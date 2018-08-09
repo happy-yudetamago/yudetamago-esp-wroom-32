@@ -12,6 +12,7 @@ public:
 
 public:
     void InitializeBluetooth();
+    boolean Analyze();
     boolean AnalyzeBluetooth();
     boolean AnalyzeSerial();
     void Write(char ch);

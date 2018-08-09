@@ -279,7 +279,7 @@ void setup() {
 
         commandLine.InitializeBluetooth();
         while (1) {
-            commandLine.AnalyzeBluetooth();
+            commandLine.Analyze();
             vTaskDelay(20);
         }
         // can not reach here.

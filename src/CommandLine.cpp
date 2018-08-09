@@ -86,6 +86,13 @@ void CommandLine::InitializeBluetooth()
     pServer->getAdvertising()->start();
 }
 
+boolean CommandLine::Analyze()
+{
+    boolean bSerialResult = AnalyzeSerial();
+    boolean bStreamResult = AnalyzeBluetooth();
+    return bSerialResult || bStreamResult;
+}
+
 boolean CommandLine::AnalyzeBluetooth()
 {
     if (!enableBluetooth) {
