@@ -73,13 +73,13 @@ After restart, new objectId is enabled.
 #### synopsis
 
 ```
-set_objectid <yudetamago objectId>
+set_objectid <yudetamago objectId> <yudetamago objectId> <yudetamago objectId> <yudetamago objectId> <yudetamago objectId>
 ```
 
 #### example
 
 ```
-$ set_objectid KyPxxxxxxxxxx2Jf
+$ set_objectid KyPxxxxxxxxxx2Jf UyPxxxxxxxxxx2Jf QyPxxxxxxxxxx2Jf MyPxxxxxxxxxx2Jf lyPxxxxxxxxxx2kf
 [INFO ] Successed to write objectId.
 ```
 
@@ -215,15 +215,13 @@ $ pio serialports monitor -b 115200
 
 ### Library
 
-- Adafruit NeoPixel Library (LGPL v3.0)
-  https://github.com/adafruit/Adafruit_NeoPixel
+- Makuna/NeoPixelBus Library (LGPL v3.0)
+  https://github.com/Makuna/NeoPixelBus
 - Cryptographic suite for Arduino (SHA, HMAC-SHA) 
   https://github.com/simonratner/Arduino-SHA-256
   (Fix compile errors)
 
 ### ToDo
-
-- 5 button(optional)
 
 ## Link
 
