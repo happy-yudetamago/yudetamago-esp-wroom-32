@@ -83,6 +83,53 @@ $ set_objectid KyPxxxxxxxxxx2Jf UyPxxxxxxxxxx2Jf QyPxxxxxxxxxx2Jf MyPxxxxxxxxxx2
 [INFO ] Successed to write objectId.
 ```
 
+### set_led
+
+Set led commnad.
+
+#### synopsis
+
+```
+set_led <led id> <red> <green> <blue>
+```
+
+led id : 0, 1, 2, 3, 4
+red    : from 0 to 255
+green  : from 0 to 255
+blue   : from 0 to 255
+
+#### example
+
+```
+$ set_led 0 255 0 0
+```
+
+### get_button_state
+
+Get button state commnad.
+
+#### synopsis
+
+```
+get_button_state
+```
+
+#### example
+
+```
+$ get_button_state
+[INFO ] button #0: not pressed
+button #0: not pressed
+[INFO ] button #1: pressed
+button #1: pressed
+[INFO ] button #2: not pressed
+button #2: not pressed
+[INFO ] button #3: not pressed
+button #3: not pressed
+[INFO ] button #4: not pressed
+button #4: not pressed
+```
+
 ### set_loglevel
 
 Set log level commnad.

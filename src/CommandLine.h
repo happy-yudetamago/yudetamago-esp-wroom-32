@@ -23,6 +23,7 @@ private:
     size_t writeChar(char ch);
     void writeError(const char *message);
     void writeInfo(const char *message);
+    void writeButtonState(const char *name, int pin);
     bool executeSetSsidCommand(const CommandLineParser *parser);
     bool executeSetObjectIdCommand(const CommandLineParser *parser);
     bool executeLogCommand(const CommandLineParser *parser);
@@ -30,6 +31,7 @@ private:
     bool executeInfoCommand(const CommandLineParser *parser);
     bool executeCommandLine(const char *line);
     bool executeSetLedCommand(const CommandLineParser *parser);
+    bool executeGetButtonStateCommand(const CommandLineParser *parser);
 
 private:
     String  buf;

@@ -9,6 +9,7 @@
 #include "Log.h"
 #include "Config.h"
 #include "CommandLineParser.h"
+#include "hardware_defines.h"
 
 bool deviceConnected = false;
 bool oldDeviceConnected = false;
@@ -360,6 +361,33 @@ bool CommandLine::executeSetLedCommand(const CommandLineParser *parser)
     return true;
 }
 
+void CommandLine::writeButtonState(const char *name, int pin)
+{
+    String message = name;
+    if (digitalRead(pin) == LOW) {
+        message += ": pressed";
+    } else {
+        message += ": not pressed";
+    }
+    writeInfo(message.c_str());
+}
+
+bool CommandLine::executeGetButtonStateCommand(const CommandLineParser *parser)
+{
+    const char *arg = parser->GetFirstArg();
+    if (arg != 0) {
+        writeError("get_button_state: too many arguments.");
+        return false;
+    }
+
+    writeButtonState("button #0", STOCK_0_PIN);
+    writeButtonState("button #1", STOCK_1_PIN);
+    writeButtonState("button #2", STOCK_2_PIN);
+    writeButtonState("button #3", STOCK_3_PIN);
+    writeButtonState("button #4", STOCK_4_PIN);
+    return true;
+}
+
 bool CommandLine::executeSetLogLevelCommand(const CommandLineParser *parser)
 {
     const char *level = parser->GetFirstArg();
@@ -441,6 +469,9 @@ bool CommandLine::executeCommandLine(const char *line)
     }
     if (strcmp(parser.GetName(), "set_led") == 0) {
         return executeSetLedCommand(&parser);
+    }
+    if (strcmp(parser.GetName(), "get_button_state") == 0) {
+        return executeGetButtonStateCommand(&parser);
     }
     if (strcmp(parser.GetName(), "log") == 0) {
         return executeLogCommand(&parser);
