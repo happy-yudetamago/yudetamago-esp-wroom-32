@@ -39,7 +39,6 @@ public:
     void onWrite(BLECharacteristic *pCharacteristic) {
         std::string rxValue = pCharacteristic->getValue();
 
-        Serial.println("********");
         for (int i=0; i<rxValue.length(); i++) {
             stream->AppendReadBuffer(rxValue[i]);
         }
@@ -101,6 +100,7 @@ boolean BluetoothStream::Update()
         delay(500); // give the bluetooth stack the chance to get things ready
         pServer->startAdvertising(); // restart advertising
         oldDeviceConnected = deviceConnected;
+        Log::Info("BLE: disconnecting.");
     }
     // connecting
     if (deviceConnected && !oldDeviceConnected) {
@@ -142,6 +142,9 @@ void BluetoothStream::flush()
 size_t BluetoothStream::write(uint8_t ch)
 {
     if (!initialized) {
+        return 0;
+    }
+    if (!deviceConnected) {
         return 0;
     }
     pTxCharacteristic->setValue(&ch, 1);

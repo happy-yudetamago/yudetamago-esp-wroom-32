@@ -315,6 +315,7 @@ void setup() {
         stream.Initialize();
         while (1) {
             commandLine.Analyze();
+            stream.Update();
             vTaskDelay(20);
         }
         // can not reach here.
@@ -324,7 +325,7 @@ void setup() {
         Log::Error("Faild to read objectId.");
         while (1) {
             showError(1);
-            while (commandLine.Analyze());
+            while (commandLine.AnalyzeSerial());
         }
     }
     for (int i=0; i<OBJECT_ID_SIZE; i++) {
