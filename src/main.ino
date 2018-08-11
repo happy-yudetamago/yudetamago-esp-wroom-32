@@ -2,7 +2,8 @@
 #include <WiFi.h>
 #include <sstream>
 
-#include "Log.h"
+#include "log/Log.h"
+
 #include "Config.h"
 #include "CommandLine.h"
 #include "YudetamagoClient.h"

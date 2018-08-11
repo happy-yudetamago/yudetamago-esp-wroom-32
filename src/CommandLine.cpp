@@ -4,9 +4,10 @@
 #include <BLE2902.h>
 #include <Adafruit_NeoPixel.h>
 
+#include "log/Log.h"
+
 #include "CommandLine.h"
 #include "Version.h"
-#include "Log.h"
 #include "Config.h"
 #include "CommandLineParser.h"
 #include "hardware_defines.h"
