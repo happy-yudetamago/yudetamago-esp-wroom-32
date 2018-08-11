@@ -11,6 +11,8 @@
 
 #include "BluetoothStream.h"
 
+#include "log/Log.h"
+
 bool deviceConnected = false;
 bool oldDeviceConnected = false;
 
