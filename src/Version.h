@@ -1,4 +1,4 @@
 
 #pragma once
 
-const char *const VERSION = "0.0.3";
+const char *const VERSION = "0.0.4";
