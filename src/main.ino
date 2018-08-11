@@ -3,11 +3,23 @@
 #include <sstream>
 
 #include "log/Log.h"
+#include "command/CommandLine.h"
 
 #include "Config.h"
-#include "CommandLine.h"
 #include "YudetamagoClient.h"
 #include "hardware_defines.h"
+
+#include "command/CommandLine.h"
+
+#include "BluetoothStream.h"
+
+#include "InfoCommand.h"
+#include "LogCommand.h"
+#include "GetButtonStateCommand.h"
+#include "SetLogLevelCommand.h"
+#include "SetLedCommand.h"
+#include "SetObjectIdCommand.h"
+#include "SetSsidCommand.h"
 
 /**
  * Enable D_DIAG_NEO_PIXEL_VARIABLE_LED_PER_SEC,
@@ -35,7 +47,16 @@ const int NCMB_ACCESS_INTERVAL       = (5 * 60 * 1000);
 
 bool object_exists[OBJECT_ID_SIZE] = {true, true, true, true, true};
 
-CommandLine commandLine;
+BluetoothStream       stream;
+
+CommandLine           commandLine;
+InfoCommand           infoCommand;
+LogCommand            logCommand;
+GetButtonStateCommand getButtonStateCommand;
+SetLogLevelCommand    setLogLevelCommand;
+SetLedCommand         setLedCommand;
+SetObjectIdCommand    setObjectIdCommand;
+SetSsidCommand        setSsidCommand;
 
 static void showNeoPixel() {
     // [Problem] Neo Pixel Green LED can not turn off
@@ -238,14 +259,37 @@ void singleDiag() {
 
 void setup() {
     Serial.begin(115200);
-    Serial.println("");
+    Serial.println("Starting Yudetamago...");
+
+    commandLine.Initialize(&stream);
+
+    infoCommand.Initialize(&stream);
+    commandLine.AddCommand(&infoCommand);
+
+    logCommand.Initialize(&stream);
+    commandLine.AddCommand(&logCommand);
+
+    getButtonStateCommand.Initialize(&stream);
+    commandLine.AddCommand(&getButtonStateCommand);
+
+    setLogLevelCommand.Initialize(&stream);
+    commandLine.AddCommand(&setLogLevelCommand);
+
+    setLedCommand.Initialize(&stream);
+    setLedCommand.SetPixels(&pixels);
+    commandLine.AddCommand(&setLedCommand);
+
+    setObjectIdCommand.Initialize(&stream);
+    commandLine.AddCommand(&setObjectIdCommand);
+
+    setSsidCommand.Initialize(&stream);
+    commandLine.AddCommand(&setSsidCommand);
 
     pixels.Begin();
     for (int i=0; i<OBJECT_ID_SIZE; i++) {
         pixels.SetPixelColor(i, BLACK_COLOR);
     }
     showNeoPixel();
-    commandLine.SetPixels(&pixels);
 
     pinMode(MODE_PIN,    INPUT_PULLUP);
     pinMode(STOCK_0_PIN, INPUT_PULLUP);
@@ -258,7 +302,6 @@ void setup() {
         Log::Error("Faild to Config::Initialize().");
         while (1) {
             showError(1);
-            while (commandLine.AnalyzeSerial());
         }
     }
 
@@ -269,7 +312,7 @@ void setup() {
         pixels.SetPixelColor(NEO_PIXEL_STOCK_0, CONFIG_COLOR);
         showNeoPixel();
 
-        commandLine.InitializeBluetooth();
+        stream.Initialize();
         while (1) {
             commandLine.Analyze();
             vTaskDelay(20);
@@ -281,7 +324,7 @@ void setup() {
         Log::Error("Faild to read objectId.");
         while (1) {
             showError(1);
-            while (commandLine.AnalyzeSerial());
+            while (commandLine.Analyze());
         }
     }
     for (int i=0; i<OBJECT_ID_SIZE; i++) {
@@ -295,6 +338,7 @@ void setup() {
     singleDiag();
 
     showExistState();
+    Serial.println("Started Yudetamago.");
 }
 
 void loop() {
