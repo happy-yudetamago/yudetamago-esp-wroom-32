@@ -22,12 +22,14 @@ public:
         for (int i=0; i<OBJECT_ID_SIZE; i++) {
             if (parsedObjectId == 0) {
                 reply("set_objectid: too few arguments.\n");
+                Log::Error("set_objectid: too few arguments.");
                 return 1;
             }
             parsedObjectId = parser->NextArg(parsedObjectId);
         }
         if (parsedObjectId != 0) {
             reply("set_objectid: too many arguments.\n");
+            Log::Error("set_objectid: too many arguments.");
             return 1;
         }
 
@@ -43,6 +45,7 @@ public:
             return 0;
         } else {
             reply("Failed to write objectId.\n");
+            Log::Error("Failed to write objectId.");
             return 1;
         }
     }

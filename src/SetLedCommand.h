@@ -5,6 +5,7 @@
 #pragma once
 
 #include "command/Command.h"
+#include <sstream>
 #include <NeoPixelBus.h>
 
 class SetLedCommand : public Command {
@@ -20,6 +21,7 @@ public:
     int Execute(const CommandLineParser *parser) {
         if (!pixels) {
             reply("set_led: pixels is null.\n");
+            Log::Error("set_led: pixels is null.");
             return 1;
         }
 
@@ -27,17 +29,20 @@ public:
         const char *parsedLedIndex = parser->GetFirstArg();
         if (parsedLedIndex == 0) {
             reply("set_led: led index not found.\n");
+            Log::Error("set_led: led index not found.");
             return 1;
         }
         int ledIndex = atoi(parsedLedIndex);
         if (ledIndex < 0) {
             reply("set_led: led index region error.\n");
+            Log::Error("set_led: led index region error.");
             return 1;
         }
 
         const char *parsedRedColor = parser->NextArg(parsedLedIndex);
         if (parsedRedColor == 0) {
             reply("set_led: red color not found.\n");
+            Log::Error("set_led: red color not found.");
             return 1;
         }
         uint8_t red = atoi(parsedRedColor);
@@ -45,6 +50,7 @@ public:
         const char *parsedGreenColor = parser->NextArg(parsedRedColor);
         if (parsedGreenColor == 0) {
             reply("set_led: green color not found.\n");
+            Log::Error("set_led: green color not found.");
             return 1;
         }
         uint8_t green = atoi(parsedGreenColor);
@@ -52,11 +58,17 @@ public:
         const char *parsedBlueColor = parser->NextArg(parsedGreenColor);
         if (parsedBlueColor == 0) {
             reply("set_led: blue color not found.\n");
+            Log::Error("set_led: blue color not found.");
             return 1;
         }
         uint8_t blue = atoi(parsedBlueColor);
 
-        printf("set_led: index=%d, red=%d, green=%d, blue=%d\n", ledIndex, red, green, blue);
+        std::ostringstream s;
+        s << "set_led: index=" << ledIndex
+          << ", red="   << red
+          << ", green=" << green
+          << ", blue="  << blue << "\n";
+        reply(s.str().c_str());
         pixels->SetPixelColor(ledIndex, RgbColor(red, green, blue));
 
         // [Problem] Neo Pixel Green LED can not turn off

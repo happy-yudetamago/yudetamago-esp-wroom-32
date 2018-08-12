@@ -20,17 +20,20 @@ public:
         const char *parsedSsid = parser->GetFirstArg();
         if (parsedSsid == 0) {
             reply("set_ssid: SSID not found.\n");
+            Log::Error("set_ssid: SSID not found.");
             return 1;
         }
 
         const char *parsedPass = parser->NextArg(parsedSsid);
         if (parsedPass == 0) {
             reply("set_ssid: password not found.\n");
+            Log::Error("set_ssid: password not found.");
             return 1;
         }
 
         if (parser->NextArg(parsedPass) != 0) {
             reply("set_ssid: too many arguments.\n");
+            Log::Error("set_ssid: too many arguments.");
             return 1;
         }
 
@@ -42,6 +45,7 @@ public:
             return 0;
         } else {
             reply("Failed to write wifi config.\n");
+            Log::Error("Failed to write wifi config.");
             return 1;
         }
     }

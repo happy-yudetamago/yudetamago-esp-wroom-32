@@ -20,6 +20,7 @@ public:
         const char *level = parser->GetFirstArg();
         if (level == 0) {
             reply("loglevel: no log level\n");
+            Log::Error("loglevel: no log level");
             return 1;
         }
         if (strcmp(level, "TRACE") == 0) {
@@ -53,6 +54,7 @@ public:
             return 0;
         }
         reply("loglevel: unknown level\n");
+        Log::Error("loglevel: unknown level");
         return 1;
     }
 };

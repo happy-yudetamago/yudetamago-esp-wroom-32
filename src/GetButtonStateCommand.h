@@ -23,6 +23,7 @@ public:
         const char *arg = parser->GetFirstArg();
         if (arg != 0) {
             reply("get_button_state: too many arguments.\n");
+            Log::Error("get_button_state: too many arguments.");
             return 1;
         }
 

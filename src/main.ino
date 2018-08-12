@@ -146,13 +146,11 @@ static void reconnectWifi() {
     }
 
     Log::Info("WiFi connected.");
-    String log = "IP address: ";
     IPAddress ip = WiFi.localIP();
-    log += ip[0]; log += ".";
-    log += ip[1]; log += ".";
-    log += ip[2]; log += ".";
-    log += ip[3];
-    Log::Info(log.c_str());
+
+    std::ostringstream log;
+    log << "IP address: " << ip[0] << "." << ip[1] << "." << ip[2] << "." << ip[3];
+    Log::Info(log.str().c_str());
 }
 
 static void showExistState() {
