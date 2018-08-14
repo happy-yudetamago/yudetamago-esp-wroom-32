@@ -99,10 +99,10 @@ boolean BluetoothStream::Update()
     }
     // disconnecting
     if (!deviceConnected && oldDeviceConnected) {
+        Log::Info("BLE: disconnected.");
         delay(500); // give the bluetooth stack the chance to get things ready
         pServer->startAdvertising(); // restart advertising
         oldDeviceConnected = deviceConnected;
-        Log::Info("BLE: disconnecting.");
     }
     // connecting
     if (deviceConnected && !oldDeviceConnected) {
