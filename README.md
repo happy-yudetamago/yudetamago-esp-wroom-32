@@ -52,6 +52,8 @@ CommandLineAPI are enabled in two cases.
 Set Wifi SSID and Wifi Password command.
 After restart, new SSID is enabled.
 
+since v0.0.2
+
 #### synopsis
 
 ```
@@ -70,6 +72,8 @@ $ set_ssid aterm-xxx-g 38xxxxxxxxx23
 Set yudetamago's objectId command.
 After restart, new objectId is enabled.
 
+since v0.0.2
+
 #### synopsis
 
 ```
@@ -86,6 +90,8 @@ $ set_objectid KyPxxxxxxxxxx2Jf UyPxxxxxxxxxx2Jf QyPxxxxxxxxxx2Jf MyPxxxxxxxxxx2
 ### set_led
 
 Set led commnad.
+
+since v0.0.2
 
 #### synopsis
 
@@ -107,6 +113,8 @@ $ set_led 0 255 0 0
 ### get_button_state
 
 Get button state commnad.
+
+since v0.0.3
 
 #### synopsis
 
@@ -134,6 +142,8 @@ button #4: not pressed
 
 Set log level commnad.
 
+since v0.0.2
+
 #### synopsis
 
 ```
@@ -153,6 +163,8 @@ $ set_loglevel TRACE
 
 Show latest logs command.
 The log capacity is 64.
+
+since v0.0.2
 
 #### synopsis
 
@@ -177,6 +189,8 @@ $ log
 
 Show system info command.
 
+since v0.0.2
+
 #### synopsis
 
 ```
@@ -191,6 +205,27 @@ version=0.0.1
 ssid=aterm-xxx-g
 pass=38xxxxxxxxx23
 objectId=KyPxxxxxxxxxx2Jf
+```
+
+### loop_color_change
+
+loop a color change
+
+since v0.0.5
+
+#### synopsis
+
+```
+loop_color_change <times>
+```
+
+times : 1, 2, 3, ..., default is eternal.
+
+
+#### example
+
+```
+$ loop_color_change
 ```
 
 ## for developer

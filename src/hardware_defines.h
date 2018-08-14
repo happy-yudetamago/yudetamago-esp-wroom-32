@@ -11,3 +11,5 @@
 #define STOCK_2_PIN       15
 #define STOCK_3_PIN        4
 #define STOCK_4_PIN       16
+
+#define LED_BRIGHTNESS    32

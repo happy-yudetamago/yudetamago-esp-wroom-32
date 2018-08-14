@@ -1,3 +1,8 @@
+// Copyright 2018 Yudetamago. All rights reserved.
+// Use of this source code is governed by a MIT
+// license that can be found in the LICENSE file.
+#ifdef TARGET
+
 #include <NeoPixelBus.h>
 #include <WiFi.h>
 #include <sstream>
@@ -20,43 +25,33 @@
 #include "SetLedCommand.h"
 #include "SetObjectIdCommand.h"
 #include "SetSsidCommand.h"
-
-/**
- * Enable D_DIAG_NEO_PIXEL_VARIABLE_LED_PER_SEC,
- * if you do diag Neo Pixel LEDs.
- */
-// #define D_DIAG_NEO_PIXEL_VARIABLE_LED_PER_SEC
-
-/**
- * Enable D_DIAG_NEO_PIXEL_BLACK_LED,
- * if you do diag Neo Pixel LEDs.
- */
-// #define D_DIAG_NEO_PIXEL_BLACK_LED
+#include "LoopColorChangeCommand.h"
 
 NeoPixelBus<NeoGrbFeature, Neo800KbpsMethod> pixels(NUM_OF_NEO_PIXELS, NEO_PIXEL_PIN);
 
 RgbColor BLACK_COLOR(0, 0, 0);
-RgbColor ERROR_COLOR(255, 0, 0);
-RgbColor WAITING_COLOR(255, 255, 51);
-RgbColor CONFIG_COLOR(255, 255, 255);
+RgbColor ERROR_COLOR(LED_BRIGHTNESS, 0, 0);
+RgbColor WAITING_COLOR(LED_BRIGHTNESS, LED_BRIGHTNESS, 0);
+RgbColor CONFIG_COLOR(LED_BRIGHTNESS, LED_BRIGHTNESS, LED_BRIGHTNESS);
 RgbColor EXISTS_COLOR(0, 0, 0);
-RgbColor NOT_EXSITS_COLOR(255, 0, 0);
+RgbColor NOT_EXSITS_COLOR(LED_BRIGHTNESS, 0, 0);
 const int NCMB_BUTTON_INTERVAL       = (100);
 const int NCMB_AFTER_BUTTON_INTERVAL = (1000);
 const int NCMB_ACCESS_INTERVAL       = (5 * 60 * 1000);
 
 bool object_exists[OBJECT_ID_SIZE] = {true, true, true, true, true};
 
-BluetoothStream       stream;
+BluetoothStream        stream;
 
-CommandLine           commandLine;
-InfoCommand           infoCommand;
-LogCommand            logCommand;
-GetButtonStateCommand getButtonStateCommand;
-SetLogLevelCommand    setLogLevelCommand;
-SetLedCommand         setLedCommand;
-SetObjectIdCommand    setObjectIdCommand;
-SetSsidCommand        setSsidCommand;
+CommandLine            commandLine;
+InfoCommand            infoCommand;
+LogCommand             logCommand;
+GetButtonStateCommand  getButtonStateCommand;
+SetLogLevelCommand     setLogLevelCommand;
+SetLedCommand          setLedCommand;
+SetObjectIdCommand     setObjectIdCommand;
+SetSsidCommand         setSsidCommand;
+LoopColorChangeCommand loopColorChangeCommand;
 
 static void showNeoPixel() {
     // [Problem] Neo Pixel Green LED can not turn off
@@ -221,40 +216,6 @@ static void toggleExistState(int index) {
     }
 }
 
-void singleDiag() {
-#ifdef D_DIAG_NEO_PIXEL_VARIABLE_LED_PER_SEC
-    const RgbColor colors[] = {
-        RgbColor(0,   0,   0),
-        RgbColor(255, 0,   0),
-        RgbColor(0,   255, 0),
-        RgbColor(0,   0,   255),
-        RgbColor(255, 255, 0),
-        RgbColor(255, 0,   255),
-        RgbColor(0,   255, 255),
-        RgbColor(255, 255, 255)};
-    const int colorsSize = sizeof(colors)/sizeof(colors[0]);
-    while (1) {
-        for (int c=0; c<colorsSize; c++) {
-            RgbColor color = colors[c];
-            for (int i=0; i<OBJECT_ID_SIZE; i++) {
-                pixels.SetPixelColor(i, color);
-            }
-            showNeoPixel();
-            vTaskDelay(1000);
-        }
-    }
-#endif
-#ifdef D_DIAG_NEO_PIXEL_BLACK_LED
-    while (1) {
-        for (int i=0; i<OBJECT_ID_SIZE; i++) {
-            pixels.SetPixelColor(i, BLACK_COLOR);
-        }
-        showNeoPixel();
-        vTaskDelay(200);
-    }
-#endif
-}
-
 void setup() {
     Serial.begin(115200);
     Serial.println("Starting Yudetamago...");
@@ -282,6 +243,10 @@ void setup() {
 
     setSsidCommand.Initialize(&stream);
     commandLine.AddCommand(&setSsidCommand);
+
+    loopColorChangeCommand.Initialize(&stream);
+    loopColorChangeCommand.SetPixels(&pixels);
+    commandLine.AddCommand(&loopColorChangeCommand);
 
     pixels.Begin();
     for (int i=0; i<OBJECT_ID_SIZE; i++) {
@@ -334,7 +299,6 @@ void setup() {
         Log::Info(log.c_str());
     }
     reconnectWifi();
-    singleDiag();
 
     showExistState();
     Serial.println("Started Yudetamago.");
@@ -383,3 +347,5 @@ void loop() {
 
     showExistState();
 }
+
+#endif // TARGET
