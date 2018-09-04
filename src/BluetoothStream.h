@@ -29,11 +29,13 @@ public:
     void flush();
 
     // Print.h
+    size_t write(const uint8_t *buffer, size_t size);
     size_t write(uint8_t ch);
 
 private:
     boolean            initialized;
     std::vector<char>  readStream;
+    std::vector<char>  writeStream;
     BLEServer         *pServer;
     BLECharacteristic *pTxCharacteristic;
     BLECharacteristic *pRxCharacteristic;

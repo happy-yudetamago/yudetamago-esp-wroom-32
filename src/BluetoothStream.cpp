@@ -72,7 +72,7 @@ void BluetoothStream::Initialize()
     // Create a BLE Characteristic
     pTxCharacteristic = pService->createCharacteristic(
         CHARACTERISTIC_UUID_TX,
-        BLECharacteristic::PROPERTY_READ);
+        BLECharacteristic::PROPERTY_NOTIFY);
 
     pTxCharacteristic->addDescriptor(new BLE2902());
 
@@ -138,6 +138,24 @@ int BluetoothStream::peek()
 
 void BluetoothStream::flush()
 {
+    pTxCharacteristic->setValue((uint8_t*)writeStream.data(), writeStream.size());
+    writeStream.clear();
+    pTxCharacteristic->notify();
+    vTaskDelay(20);
+}
+
+size_t BluetoothStream::write(const uint8_t *buffer, size_t size)
+{
+    if (!initialized) {
+        return 0;
+    }
+    if (!deviceConnected) {
+        return 0;
+    }
+    for (size_t i=0; i<size; i++) {
+        writeStream.push_back(buffer[i]);
+    }
+    return size;
 }
 
 size_t BluetoothStream::write(uint8_t ch)
@@ -148,8 +166,6 @@ size_t BluetoothStream::write(uint8_t ch)
     if (!deviceConnected) {
         return 0;
     }
-    pTxCharacteristic->setValue(&ch, 1);
-    pTxCharacteristic->notify();
-    vTaskDelay(10);
+    writeStream.push_back(ch);
     return 1;
 }
