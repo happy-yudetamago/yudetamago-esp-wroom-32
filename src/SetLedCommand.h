@@ -63,11 +63,11 @@ public:
         }
         uint8_t blue = atoi(parsedBlueColor);
 
-        std::ostringstream s;
+        std::stringstream s;
         s << "set_led: index=" << ledIndex
-          << ", red="   << red
-          << ", green=" << green
-          << ", blue="  << blue << "\n";
+          << ", red="   << (int)red
+          << ", green=" << (int)green
+          << ", blue="  << (int)blue << "\n";
         reply(s.str().c_str());
         pixels->SetPixelColor(ledIndex, RgbColor(red, green, blue));
 
