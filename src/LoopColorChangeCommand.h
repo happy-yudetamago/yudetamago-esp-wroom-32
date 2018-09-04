@@ -43,12 +43,15 @@ public:
             const int colorsSize = sizeof(colors)/sizeof(colors[0]);
             while (1) {
                 for (int c=0; c<colorsSize; c++) {
-                    RgbColor color = colors[c];
+                    RgbColor color = colors[0];
                     for (int i=0; i<OBJECT_ID_SIZE; i++) {
                         pixels->SetPixelColor(i, color);
                     }
+                    // portMUX_TYPE mux = portMUX_INITIALIZER_UNLOCKED;
+                    // taskENTER_CRITICAL(&mux);
                     pixels->Show();
-                    vTaskDelay(500);
+                    // taskEXIT_CRITICAL(&mux);
+                    vTaskDelay(10);
                 }
             }
         }

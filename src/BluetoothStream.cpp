@@ -72,14 +72,13 @@ void BluetoothStream::Initialize()
     // Create a BLE Characteristic
     pTxCharacteristic = pService->createCharacteristic(
         CHARACTERISTIC_UUID_TX,
-        BLECharacteristic::PROPERTY_NOTIFY);
+        BLECharacteristic::PROPERTY_READ);
 
     pTxCharacteristic->addDescriptor(new BLE2902());
 
     pRxCharacteristic = pService->createCharacteristic(
         CHARACTERISTIC_UUID_RX,
-        BLECharacteristic::PROPERTY_WRITE
-        );
+        BLECharacteristic::PROPERTY_WRITE);
 
     pRxCharacteristic->setCallbacks(new MyCallbacks(this));
 

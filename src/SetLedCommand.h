@@ -118,7 +118,10 @@ public:
         // until the Adafruit library gets hardware support on ESP32.
         //
         // https://github.com/adafruit/Adafruit_NeoPixel/issues/139
+        // portMUX_TYPE mux = portMUX_INITIALIZER_UNLOCKED;
+        // taskENTER_CRITICAL(&mux);
         pixels->Show();
+        // taskEXIT_CRITICAL(&mux);
         return 0;
     }
 

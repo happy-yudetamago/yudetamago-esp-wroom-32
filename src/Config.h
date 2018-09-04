@@ -2,8 +2,6 @@
 
 #include <Arduino.h>
 
-#define OBJECT_ID_SIZE 5
-
 class Config
 {
 public:

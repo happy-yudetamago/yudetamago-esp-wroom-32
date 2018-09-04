@@ -2,6 +2,7 @@
 
 #include <SPIFFS.h>
 #include <vector>
+#include "hardware_defines.h"
 
 const char* config_file = "/config.txt";
 const char* objectids_file = "/objectids.txt";

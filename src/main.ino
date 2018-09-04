@@ -101,7 +101,10 @@ static void showNeoPixel() {
     // until the Adafruit library gets hardware support on ESP32.
     //
     // https://github.com/adafruit/Adafruit_NeoPixel/issues/139
+    // portMUX_TYPE mux = portMUX_INITIALIZER_UNLOCKED;
+    // taskENTER_CRITICAL(&mux);
     pixels.Show();
+    // taskEXIT_CRITICAL(&mux);
 }
 
 static void showError(int times) {
@@ -216,37 +219,40 @@ static void toggleExistState(int index) {
     }
 }
 
-void setup() {
-    Serial.begin(115200);
-    Serial.println("Starting Yudetamago...");
+static void initializeCommandLine(Stream *stream)
+{
+    commandLine.Initialize(stream);
 
-    commandLine.Initialize(&stream);
-
-    infoCommand.Initialize(&stream);
+    infoCommand.Initialize(stream);
     commandLine.AddCommand(&infoCommand);
 
-    logCommand.Initialize(&stream);
+    logCommand.Initialize(stream);
     commandLine.AddCommand(&logCommand);
 
-    getButtonStateCommand.Initialize(&stream);
+    getButtonStateCommand.Initialize(stream);
     commandLine.AddCommand(&getButtonStateCommand);
 
-    setLogLevelCommand.Initialize(&stream);
+    setLogLevelCommand.Initialize(stream);
     commandLine.AddCommand(&setLogLevelCommand);
 
-    setLedCommand.Initialize(&stream);
+    setLedCommand.Initialize(stream);
     setLedCommand.SetPixels(&pixels);
     commandLine.AddCommand(&setLedCommand);
 
-    setObjectIdCommand.Initialize(&stream);
+    setObjectIdCommand.Initialize(stream);
     commandLine.AddCommand(&setObjectIdCommand);
 
-    setSsidCommand.Initialize(&stream);
+    setSsidCommand.Initialize(stream);
     commandLine.AddCommand(&setSsidCommand);
 
-    loopColorChangeCommand.Initialize(&stream);
+    loopColorChangeCommand.Initialize(stream);
     loopColorChangeCommand.SetPixels(&pixels);
     commandLine.AddCommand(&loopColorChangeCommand);
+}
+
+void setup() {
+    Serial.begin(115200);
+    Serial.println("Starting Yudetamago...");
 
     pixels.Begin();
     for (int i=0; i<OBJECT_ID_SIZE; i++) {
@@ -276,6 +282,7 @@ void setup() {
         showNeoPixel();
 
         stream.Initialize();
+        initializeCommandLine(&stream);
         while (1) {
             commandLine.Analyze();
             stream.Update();
@@ -283,6 +290,8 @@ void setup() {
         }
         // can not reach here.
     }
+
+    initializeCommandLine(0);
     Log::Info("Detected Normal mode.");
     if (!Config::Read()) {
         Log::Error("Faild to read objectId.");

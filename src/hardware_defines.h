@@ -13,3 +13,5 @@
 #define STOCK_4_PIN       16
 
 #define LED_BRIGHTNESS    32
+
+#define OBJECT_ID_SIZE 5
