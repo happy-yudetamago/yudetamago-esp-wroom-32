@@ -228,6 +228,25 @@ times : 1, 2, 3, ..., default is eternal.
 $ loop_color_change
 ```
 
+### reset
+
+Reset system
+
+since v0.0.7
+
+#### synopsis
+
+```
+reset
+```
+
+
+#### example
+
+```
+$ reset
+```
+
 ## for developer
 
 ### How to modify flash size
