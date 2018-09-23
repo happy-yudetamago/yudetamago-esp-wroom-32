@@ -26,6 +26,7 @@
 #include "SetObjectIdCommand.h"
 #include "SetSsidCommand.h"
 #include "LoopColorChangeCommand.h"
+#include "ResetCommand.h"
 
 NeoPixelBus<NeoGrbFeature, Neo800KbpsMethod> pixels(NUM_OF_NEO_PIXELS, NEO_PIXEL_PIN);
 
@@ -52,6 +53,7 @@ SetLedCommand          setLedCommand;
 SetObjectIdCommand     setObjectIdCommand;
 SetSsidCommand         setSsidCommand;
 LoopColorChangeCommand loopColorChangeCommand;
+ResetCommand           resetCommand;
 
 static void showNeoPixel() {
     // [Problem] Neo Pixel Green LED can not turn off
@@ -248,6 +250,9 @@ static void initializeCommandLine(Stream *stream)
     loopColorChangeCommand.Initialize(stream);
     loopColorChangeCommand.SetPixels(&pixels);
     commandLine.AddCommand(&loopColorChangeCommand);
+
+    resetCommand.Initialize(stream);
+    commandLine.AddCommand(&resetCommand);
 }
 
 void setup() {
