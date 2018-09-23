@@ -149,7 +149,7 @@ static void reconnectWifi() {
     IPAddress ip = WiFi.localIP();
 
     std::ostringstream log;
-    log << "IP address: " << ip[0] << "." << ip[1] << "." << ip[2] << "." << ip[3];
+    log << "IP address: " << (int)ip[0] << "." << (int)ip[1] << "." << (int)ip[2] << "." << (int)ip[3];
     Log::Info(log.str().c_str());
 }
 
