@@ -15,3 +15,4 @@
 #define LED_BRIGHTNESS    32
 
 #define OBJECT_ID_SIZE 5
+#define OBJECT_ID_MASK 0x1F

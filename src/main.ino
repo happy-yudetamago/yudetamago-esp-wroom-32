@@ -109,15 +109,41 @@ static void showNeoPixel() {
     // taskEXIT_CRITICAL(&mux);
 }
 
-static void showError(int times) {
-    for (int i=0; times < 0 || i<times; i++) {
-        pixels.SetPixelColor(NEO_PIXEL_STOCK_0, ERROR_COLOR);
-        showNeoPixel();
-        vTaskDelay(1000);
+static int ledIndex2Pin(int index) {
+    switch (index) {
+    case 0: return STOCK_0_PIN;
+    case 1: return STOCK_1_PIN;
+    case 2: return STOCK_2_PIN;
+    case 3: return STOCK_3_PIN;
+    case 4: return STOCK_4_PIN;
+    }
+    return STOCK_0_PIN;
+}
 
-        pixels.SetPixelColor(NEO_PIXEL_STOCK_0, BLACK_COLOR);
-        showNeoPixel();
-        vTaskDelay(1000);
+static void showErrorOne(int ledMask, RgbColor color) {
+    for (int i=0; i<OBJECT_ID_SIZE; i++) {
+        int mask = (1 << i);
+        if ((ledMask & mask) == 0) {
+            continue;
+        }
+
+        int pin = ledIndex2Pin(i);
+        pixels.SetPixelColor(pin, color);
+    }
+    showNeoPixel();
+}
+
+static void showErrorOne(int ledMask) {
+    showErrorOne(ledMask, ERROR_COLOR);
+    vTaskDelay(1000);
+
+    showErrorOne(ledMask, BLACK_COLOR);
+    vTaskDelay(1000);
+}
+
+static void showError(int ledMask, int times) {
+    for (int i=0; times < 0 || i<times; i++) {
+        showErrorOne(ledMask);
     }
 }
 
@@ -170,7 +196,7 @@ static void downloadExistStates() {
         bool exists;
         if (!YudetamagoClient::GetExistance(object_id.c_str(), exists, error) ) {
             Log::Error(error.c_str());
-            showError(10);
+            showError(1<<i, 10);
             return;
         }
         if (exists) {
@@ -196,7 +222,7 @@ static void uploadExistState(int index) {
     String error;
     if (!YudetamagoClient::SetExistance(object_id.c_str(), exists, error)) {
         Log::Error(error.c_str());
-        showError(10);
+        showError(1<<index, 10);
         return;
     }
     if (exists) {
@@ -283,7 +309,7 @@ void setup() {
     if (!Config::Initialize()) {
         Log::Error("Faild to Config::Initialize().");
         while (1) {
-            showError(1);
+            showError(OBJECT_ID_MASK, 1);
         }
     }
 
@@ -309,7 +335,7 @@ void setup() {
     if (!Config::Read()) {
         Log::Error("Faild to read objectId.");
         while (1) {
-            showError(1);
+            showError(OBJECT_ID_MASK, 1);
             while (commandLine.AnalyzeSerial());
         }
     }
