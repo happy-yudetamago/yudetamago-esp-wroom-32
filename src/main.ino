@@ -153,7 +153,15 @@ static void reconnectWifi() {
     Log::Info(log.str().c_str());
 }
 
-static void showExistState() {
+static void showExistStates() {
+    for (int i=0; i<OBJECT_ID_SIZE; i++) {
+        bool exists = object_exists[i];
+        pixels.SetPixelColor(i, exists? EXISTS_COLOR: NOT_EXSITS_COLOR);
+    }
+    showNeoPixel();
+}
+
+static void downloadExistStates() {
     for (int i=0; i<OBJECT_ID_SIZE; i++) {
         String object_id;
         Config::GetObjectId(i, object_id);
@@ -177,31 +185,14 @@ static void showExistState() {
             Log::Debug(msg.str().c_str());
         }
         object_exists[i] = exists;
-
-        pixels.SetPixelColor(i, exists? EXISTS_COLOR: NOT_EXSITS_COLOR);
     }
-    showNeoPixel();
 }
 
-static void toggleExistState(int index) {
-    object_exists[index] = !object_exists[index];
-    bool exists = object_exists[index];
-
-    if (exists) {
-        std::ostringstream msg;
-        msg << "Detected button pressed: exist #";
-        msg << index;
-        Log::Debug(msg.str().c_str());
-    } else {
-        std::ostringstream msg;
-        msg << "Detected button pressed: not exist #";
-        msg << index;
-        Log::Debug(msg.str().c_str());
-    }
-
+static void uploadExistState(int index) {
     String object_id;
     Config::GetObjectId(index, object_id);
 
+    bool exists = object_exists[index];
     String error;
     if (!YudetamagoClient::SetExistance(object_id.c_str(), exists, error)) {
         Log::Error(error.c_str());
@@ -218,6 +209,23 @@ static void toggleExistState(int index) {
         msg << "SetExistance: not exist #";
         msg << index;
         Log::Info(msg.str().c_str());
+    }
+}
+
+static void toggleExistState(int index) {
+    object_exists[index] = !object_exists[index];
+    bool exists = object_exists[index];
+
+    if (exists) {
+        std::ostringstream msg;
+        msg << "Toggle exist state: not exist -> exist #";
+        msg << index;
+        Log::Debug(msg.str().c_str());
+    } else {
+        std::ostringstream msg;
+        msg << "Toggle exist state: exist -> not exist #";
+        msg << index;
+        Log::Debug(msg.str().c_str());
     }
 }
 
@@ -314,7 +322,8 @@ void setup() {
     }
     reconnectWifi();
 
-    showExistState();
+    downloadExistStates();
+    showExistStates();
     Serial.println("Started Yudetamago.");
 }
 
@@ -322,22 +331,25 @@ void loop() {
     for (int times=0; times<NCMB_ACCESS_INTERVAL; times+=NCMB_BUTTON_INTERVAL) {
         while (commandLine.AnalyzeSerial());
 
+        int pressedButtonIndex = -1;
         if (digitalRead(STOCK_0_PIN) == LOW) {
-            toggleExistState(0);
+            pressedButtonIndex = 0;
         } else if (digitalRead(STOCK_1_PIN) == LOW) {
-            toggleExistState(1);
+            pressedButtonIndex = 1;
         } else if (digitalRead(STOCK_2_PIN) == LOW) {
-            toggleExistState(2);
+            pressedButtonIndex = 2;
         } else if (digitalRead(STOCK_3_PIN) == LOW) {
-            toggleExistState(3);
+            pressedButtonIndex = 3;
         } else if (digitalRead(STOCK_4_PIN) == LOW) {
-            toggleExistState(4);
+            pressedButtonIndex = 4;
         } else {
             vTaskDelay(NCMB_BUTTON_INTERVAL);
             continue;
         }
-
-        showExistState();
+        toggleExistState(pressedButtonIndex);
+        showExistStates();
+        uploadExistState(pressedButtonIndex);
+        downloadExistStates();
 
         /////////////////////////////////////////////////////////////
         // Use vTaskDelay() instead of delay()                     //
@@ -359,7 +371,7 @@ void loop() {
         vTaskDelay(NCMB_AFTER_BUTTON_INTERVAL);
     }
 
-    showExistState();
+    downloadExistStates();
 }
 
 #endif // TARGET
