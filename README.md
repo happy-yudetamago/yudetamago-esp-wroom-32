@@ -282,6 +282,11 @@ $ pio serialports monitor -b 115200
 
 ### ToDo
 
+- Download firmware over TCP/IP
+- Multi task
+- Modify log
+- Fix LED bug
+
 ## Link
 
 - ESP-WROOM-32 datasheet
