@@ -249,48 +249,6 @@ $ reset
 
 ## for developer
 
-### How to modify flash size
-
-edit default.csv
-
-```diff
---- ~/.platformio/packages/framework-arduinoespressif32/tools/partitions/default.csv.default	2018-03-08 03:54:26.070449130 +0900
-+++ ~/.platformio/packages/framework-arduinoespressif32/tools/partitions/default.csv	2018-03-08 03:55:06.422823814 +0900
-@@ -1,7 +1,7 @@
- # Name,   Type, SubType, Offset,  Size, Flags
- nvs,      data, nvs,     0x9000,  0x5000,
- otadata,  data, ota,     0xe000,  0x2000,
--app0,     app,  ota_0,   0x10000, 0x140000,
--app1,     app,  ota_1,   0x150000,0x140000,
-+app0,     app,  ota_0,   0x10000, 0x200000,
-+app1,     app,  ota_1,   0x210000,0x80000,
- eeprom,   data, 0x99,    0x290000,0x1000,
- spiffs,   data, spiffs,  0x291000,0x16F000,
-```
-
-edit esp32dev.json
-
-```diff
---- ~/.platformio/platforms/espressif32/boards/esp32dev.json.default	2018-03-08 04:47:47.884546218 +0900
-+++ ~/.platformio/platforms/espressif32/boards/esp32dev.json	2018-03-08 04:48:17.665823356 +0900
-@@ -23,7 +23,7 @@
-   "upload": {
-     "flash_size": "4MB",
-     "maximum_ram_size": 294912,
--    "maximum_size": 1310720,
-+    "maximum_size": 2097152,
-     "require_upload_port": true,
-     "speed": 115200,
-     "wait_for_upload_port": true
-```
-
-```
-$ pio run -t clean
-$ rm -rf .pioenvs
-```
-
-see https://github.com/platformio/platform-espressif32/issues/58
-
 ### build firmware
 
 ```
