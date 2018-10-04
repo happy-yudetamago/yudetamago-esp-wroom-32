@@ -272,6 +272,19 @@ $ pio run --target upload
 $ pio serialports monitor -b 115200
 ```
 
+```
+$ miniterm.py /dev/ttyUSB0 115200 | awk '{ print strftime(), $0; fflush() }'
+Fri Oct 5 02:50:25 JST 2018 clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+Fri Oct 5 02:50:25 JST 2018 mode:DIO, clock div:2
+Fri Oct 5 02:50:25 JST 2018 load:0x3fff0018,len:4
+Fri Oct 5 02:50:25 JST 2018 load:0x3fff001c,len:952
+Fri Oct 5 02:50:25 JST 2018 load:0x40078000,len:6084
+Fri Oct 5 02:50:25 JST 2018 load:0x40080000,len:7944
+Fri Oct 5 02:50:25 JST 2018 entry 0x40080310
+Fri Oct 5 02:50:25 JST 2018 Starting Yudetamago...
+Fri Oct 5 02:50:25 JST 2018 [INFO ] Detected Normal mode.
+```
+
 ### Library
 
 - Makuna/NeoPixelBus Library (LGPL v3.0)
