@@ -3,7 +3,6 @@
 // license that can be found in the LICENSE file.
 #ifdef TARGET
 
-#include <NeoPixelBus.h>
 #include <WiFi.h>
 #include <sstream>
 
@@ -13,6 +12,7 @@
 #include "Config.h"
 #include "YudetamagoClient.h"
 #include "hardware_defines.h"
+#include "LedDevice.h"
 
 #include "command/CommandLine.h"
 
@@ -28,14 +28,6 @@
 #include "LoopColorChangeCommand.h"
 #include "ResetCommand.h"
 
-NeoPixelBus<NeoGrbFeature, Neo800KbpsMethod> pixels(NUM_OF_NEO_PIXELS, NEO_PIXEL_PIN);
-
-RgbColor BLACK_COLOR(0, 0, 0);
-RgbColor ERROR_COLOR(LED_BRIGHTNESS, 0, 0);
-RgbColor WAITING_COLOR(LED_BRIGHTNESS, LED_BRIGHTNESS, 0);
-RgbColor CONFIG_COLOR(LED_BRIGHTNESS, LED_BRIGHTNESS, LED_BRIGHTNESS);
-RgbColor EXISTS_COLOR(0, 0, 0);
-RgbColor NOT_EXSITS_COLOR(LED_BRIGHTNESS, 0, 0);
 const int NCMB_BUTTON_INTERVAL       = (100);
 const int NCMB_AFTER_BUTTON_INTERVAL = (1000);
 const int NCMB_ACCESS_INTERVAL       = (5 * 60 * 1000);
@@ -55,89 +47,13 @@ SetSsidCommand         setSsidCommand;
 LoopColorChangeCommand loopColorChangeCommand;
 ResetCommand           resetCommand;
 
-static void showNeoPixel() {
-    // [Problem] Neo Pixel Green LED can not turn off
-    // - Chip : ESP-32
-    // - When : After WiFi connected?
-    //
-    // Test result
-    // <command>                          <actual color>
-    // setPixelColor(0,   0,   0,   0) -> Green
-    // setPixelColor(0,   0, 255,   0) -> Green
-    // setPixelColor(0,   0,   0, 255) -> Blue
-    // setPixelColor(0, 128,   0,   0) -> Yellow (Red + Green?)
-    // setPixelColor(0, 255,   0,   0) -> Orange (Red + Green?)
-    // setPixelColor(0, 255, 255, 255) -> White
-    //
-    // WS2812B protocol(Neo Pixel)
-    // [Green 8bit] [Red 8bit] [Blue 8bit]
-    //
-    // Guess
-    // - only 1st color can not turn off
-    // - only 1st color is garbled
-    // - if continuously execute show(), 1st show() fails, but 2nd show() success?
-    //
-    // Solution
-    //   pixels.show();
-    //   pixels.show();
-
-    // [Problem] Neo Pixel LED rarely change a different color.
-    //
-    // Solution
-    //   portMUX_TYPE mux = portMUX_INITIALIZER_UNLOCKED;
-    //   taskENTER_CRITICAL(&mux);
-    //   pixels.show();
-    //   taskEXIT_CRITICAL(&mux);
-    //
-    // portMUX_TYPE mux = portMUX_INITIALIZER_UNLOCKED;
-    // taskENTER_CRITICAL(&mux);
-    // pixels->show();
-    // pixels->show();
-    // taskEXIT_CRITICAL(&mux);
-
-    // Change library from Adafruit to Makuna/NeoPixelBus.
-    //
-    // EDIT: I just tried https://github.com/Makuna/NeoPixelBus with total success,
-    // even with WiFi and Serial. Had to install from git, though,
-    // due to Makuna/NeoPixelBus#212 on Linux. I can confirm that's a good workaround
-    // until the Adafruit library gets hardware support on ESP32.
-    //
-    // https://github.com/adafruit/Adafruit_NeoPixel/issues/139
-    // portMUX_TYPE mux = portMUX_INITIALIZER_UNLOCKED;
-    // taskENTER_CRITICAL(&mux);
-    pixels.Show();
-    // taskEXIT_CRITICAL(&mux);
-}
-
-static int ledIndex2Pin(int index) {
-    switch (index) {
-    case 0: return STOCK_0_PIN;
-    case 1: return STOCK_1_PIN;
-    case 2: return STOCK_2_PIN;
-    case 3: return STOCK_3_PIN;
-    case 4: return STOCK_4_PIN;
-    }
-    return STOCK_0_PIN;
-}
-
-static void showErrorOne(int ledMask, RgbColor color) {
-    for (int i=0; i<OBJECT_ID_SIZE; i++) {
-        int mask = (1 << i);
-        if ((ledMask & mask) == 0) {
-            continue;
-        }
-
-        int pin = ledIndex2Pin(i);
-        pixels.SetPixelColor(pin, color);
-    }
-    showNeoPixel();
-}
-
 static void showErrorOne(int ledMask) {
-    showErrorOne(ledMask, ERROR_COLOR);
+    LedDevice::SetColorMask(ledMask, ERROR_COLOR);
+    LedDevice::Show();
     vTaskDelay(1000);
 
-    showErrorOne(ledMask, BLACK_COLOR);
+    LedDevice::SetColorMask(ledMask, BLACK_COLOR);
+    LedDevice::Show();
     vTaskDelay(1000);
 }
 
@@ -160,13 +76,13 @@ static void reconnectWifi() {
     Log::Info(ssid.c_str());
     Log::Info(pass.c_str());
     while (WiFi.status() != WL_CONNECTED) {
-        pixels.SetPixelColor(NEO_PIXEL_STOCK_0, WAITING_COLOR);
-        showNeoPixel();
+        LedDevice::SetColor(0, WAITING_COLOR);
+        LedDevice::Show();
         Log::Debug(".");
         vTaskDelay(500);
 
-        pixels.SetPixelColor(NEO_PIXEL_STOCK_0, BLACK_COLOR);
-        showNeoPixel();
+        LedDevice::SetColor(0, BLACK_COLOR);
+        LedDevice::Show();
         Log::Debug(".");
         vTaskDelay(500);
     }
@@ -182,9 +98,9 @@ static void reconnectWifi() {
 static void showExistStates() {
     for (int i=0; i<OBJECT_ID_SIZE; i++) {
         bool exists = object_exists[i];
-        pixels.SetPixelColor(i, exists? EXISTS_COLOR: NOT_EXSITS_COLOR);
+        LedDevice::SetColor(i, exists? EXISTS_COLOR: NOT_EXSITS_COLOR);
     }
-    showNeoPixel();
+    LedDevice::Show();
 }
 
 static void downloadExistStates() {
@@ -272,7 +188,6 @@ static void initializeCommandLine(Stream *stream)
     commandLine.AddCommand(&setLogLevelCommand);
 
     setLedCommand.Initialize(stream);
-    setLedCommand.SetPixels(&pixels);
     commandLine.AddCommand(&setLedCommand);
 
     setObjectIdCommand.Initialize(stream);
@@ -282,7 +197,6 @@ static void initializeCommandLine(Stream *stream)
     commandLine.AddCommand(&setSsidCommand);
 
     loopColorChangeCommand.Initialize(stream);
-    loopColorChangeCommand.SetPixels(&pixels);
     commandLine.AddCommand(&loopColorChangeCommand);
 
     resetCommand.Initialize(stream);
@@ -293,11 +207,7 @@ void setup() {
     Serial.begin(115200);
     Serial.println("Starting Yudetamago...");
 
-    pixels.Begin();
-    for (int i=0; i<OBJECT_ID_SIZE; i++) {
-        pixels.SetPixelColor(i, BLACK_COLOR);
-    }
-    showNeoPixel();
+    LedDevice::Open();
 
     pinMode(MODE_PIN,    INPUT_PULLUP);
     pinMode(STOCK_0_PIN, INPUT_PULLUP);
@@ -317,8 +227,8 @@ void setup() {
         Log::Info("Detected Config mode.");
 
         Config::Read();
-        pixels.SetPixelColor(NEO_PIXEL_STOCK_0, CONFIG_COLOR);
-        showNeoPixel();
+        LedDevice::SetColor(0, CONFIG_COLOR);
+        LedDevice::Show();
 
         stream.Initialize();
         initializeCommandLine(&stream);
