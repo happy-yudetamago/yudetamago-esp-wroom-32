@@ -376,6 +376,7 @@ void loop() {
         showExistStates();
         uploadExistState(pressedButtonIndex);
         downloadExistStates();
+        showExistStates();
 
         /////////////////////////////////////////////////////////////
         // Use vTaskDelay() instead of delay()                     //
@@ -398,6 +399,7 @@ void loop() {
     }
 
     downloadExistStates();
+    showExistStates();
 }
 
 #endif // TARGET
