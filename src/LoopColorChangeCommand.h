@@ -7,6 +7,8 @@
 #include "command/Command.h"
 #include <sstream>
 
+// #define BLACK_ONLY
+
 class LoopColorChangeCommand : public Command {
 public:
     LoopColorChangeCommand() {}
@@ -37,7 +39,11 @@ public:
                 LedColor(LED_BRIGHTNESS, LED_BRIGHTNESS, LED_BRIGHTNESS)};
             const int colorsSize = sizeof(colors)/sizeof(colors[0]);
             for (int c=0; c<colorsSize; c++) {
+#ifdef BLACK_ONLY
+                LedColor color = colors[0];
+#else
                 LedColor color = colors[c];
+#endif
                 for (int j=0; j<internalLoop; j++) {
                     LedDevice::SetColorMask(OBJECT_ID_MASK, color);
                     LedDevice::Show();
