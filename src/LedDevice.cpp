@@ -3,6 +3,7 @@
 // license that can be found in the LICENSE file.
 
 #include "LedDevice.h"
+#include <NeoPixelBus.h>
 #include "log/Log.h"
 
 NeoPixelBus<NeoGrbFeature, Neo800KbpsMethod> pixels(NUM_OF_NEO_PIXELS, NEO_PIXEL_PIN);
