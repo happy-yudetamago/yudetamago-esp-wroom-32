@@ -4,7 +4,6 @@
 
 #pragma once
 
-#include <NeoPixelBus.h>
 #include <hardware_defines.h>
 
 class LedColor {

@@ -3,8 +3,12 @@
 // license that can be found in the LICENSE file.
 
 #include "CppUTest/TestHarness.h"
+#include "CppUTestExt/MockSupport.h"
 #include "CppUTest/CommandLineTestRunner.h"
+
 #include "main.ino"
+#include "LedDevice.h"
+#include "LedDeviceMock.cpp"
 
 int main(int argc, char **argv)
 {
