@@ -1,7 +1,8 @@
 
 #pragma once
 
-#define MODE_PIN          14
+#define CONFIG_MODE_PIN   14
+#define OTA_MODE_PIN      12
 #define NEO_PIXEL_PIN     27
 #define NUM_OF_NEO_PIXELS OBJECT_ID_SIZE
 #define NEO_PIXEL_STOCK_0 0

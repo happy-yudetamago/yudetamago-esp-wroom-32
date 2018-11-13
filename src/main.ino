@@ -9,6 +9,7 @@
 #include "log/Log.h"
 #include "command/CommandLine.h"
 
+#include "ota.h"
 #include "Config.h"
 #include "YudetamagoClient.h"
 #include "hardware_defines.h"
@@ -209,12 +210,13 @@ void setup() {
 
     LedDevice::Open();
 
-    pinMode(MODE_PIN,    INPUT_PULLUP);
-    pinMode(STOCK_0_PIN, INPUT_PULLUP);
-    pinMode(STOCK_1_PIN, INPUT_PULLUP);
-    pinMode(STOCK_2_PIN, INPUT_PULLUP);
-    pinMode(STOCK_3_PIN, INPUT_PULLUP);
-    pinMode(STOCK_4_PIN, INPUT_PULLUP);
+    pinMode(CONFIG_MODE_PIN, INPUT_PULLUP);
+    pinMode(OTA_MODE_PIN,    INPUT_PULLUP);
+    pinMode(STOCK_0_PIN,     INPUT_PULLUP);
+    pinMode(STOCK_1_PIN,     INPUT_PULLUP);
+    pinMode(STOCK_2_PIN,     INPUT_PULLUP);
+    pinMode(STOCK_3_PIN,     INPUT_PULLUP);
+    pinMode(STOCK_4_PIN,     INPUT_PULLUP);
 
     if (!Config::Initialize()) {
         Log::Error("Faild to Config::Initialize().");
@@ -223,7 +225,7 @@ void setup() {
         }
     }
 
-    if (digitalRead(MODE_PIN) == LOW) {
+    if (digitalRead(CONFIG_MODE_PIN) == LOW) {
         Log::Info("Detected Config mode.");
 
         Config::Read();
@@ -257,6 +259,11 @@ void setup() {
         Log::Info(log.c_str());
     }
     reconnectWifi();
+
+    if (digitalRead(OTA_MODE_PIN) == LOW) {
+        Log::Info("Detected OTA mode.");
+        execOTA();
+    }
 
     downloadExistStates();
     showExistStates();
