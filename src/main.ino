@@ -262,7 +262,10 @@ void setup() {
 
     if (digitalRead(OTA_MODE_PIN) == LOW) {
         Log::Info("Detected OTA mode.");
-        execOTA();
+        for (int i=0; i<3; i++) {
+            execOTA();
+        }
+        showError(OBJECT_ID_MASK, -1);
     }
 
     downloadExistStates();
