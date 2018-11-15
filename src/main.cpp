@@ -118,13 +118,15 @@ static void downloadExistStates() {
         }
         if (exists) {
             std::ostringstream msg;
-            msg << "GetExistance: exist #";
+            msg << "GetExistance: #";
             msg << i;
+            msg << " exist";
             Log::Debug(msg.str().c_str());
         } else {
             std::ostringstream msg;
-            msg << "GetExistance: not exist #";
+            msg << "GetExistance: #";
             msg << i;
+            msg << " not exist";
             Log::Debug(msg.str().c_str());
         }
         object_exists[i] = exists;
@@ -163,13 +165,15 @@ static void toggleExistState(int index) {
 
     if (exists) {
         std::ostringstream msg;
-        msg << "Toggle exist state: not exist -> exist #";
+        msg << "Toggle exist state: #";
         msg << index;
+        msg << " not exist -> exist";
         Log::Debug(msg.str().c_str());
     } else {
         std::ostringstream msg;
-        msg << "Toggle exist state: exist -> not exist #";
+        msg << "Toggle exist state: #";
         msg << index;
+        msg << " exist -> not exist";
         Log::Debug(msg.str().c_str());
     }
 }
@@ -208,7 +212,7 @@ static void initializeCommandLine(Stream *stream)
 
 void setup() {
     Serial.begin(115200);
-    Serial.println("Starting Yudetamago...");
+    Serial.println("[OTA] Starting Yudetamago...");
 
     LedDevice::Open();
 
