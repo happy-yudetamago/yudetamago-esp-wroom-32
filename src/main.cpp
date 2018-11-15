@@ -212,7 +212,7 @@ static void initializeCommandLine(Stream *stream)
 
 void setup() {
     Serial.begin(115200);
-    Serial.println("[OTA] Starting Yudetamago...");
+    Serial.println("Starting Yudetamago...");
 
     LedDevice::Open();
 
