@@ -144,13 +144,15 @@ static void uploadExistState(int index) {
     }
     if (exists) {
         std::ostringstream msg;
-        msg << "SetExistance: exist #";
+        msg << "SetExistance: #";
         msg << index;
+        msg << " exist";
         Log::Info(msg.str().c_str());
     } else {
         std::ostringstream msg;
-        msg << "SetExistance: not exist #";
+        msg << "SetExistance: #";
         msg << index;
+        msg << " not exist";
         Log::Info(msg.str().c_str());
     }
 }
