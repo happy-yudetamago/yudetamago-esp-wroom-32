@@ -228,7 +228,8 @@ void setup() {
     LedDevice::Open();
 
     pinMode(CONFIG_MODE_PIN, INPUT_PULLUP);
-    pinMode(OTA_MODE_PIN,    INPUT_PULLUP);
+    pinMode(OTA_MODE_1_PIN,  INPUT_PULLUP);
+    pinMode(OTA_MODE_2_PIN,  INPUT_PULLUP);
     pinMode(STOCK_0_PIN,     INPUT_PULLUP);
     pinMode(STOCK_1_PIN,     INPUT_PULLUP);
     pinMode(STOCK_2_PIN,     INPUT_PULLUP);
@@ -277,7 +278,8 @@ void setup() {
     }
     reconnectWifi();
 
-    if (digitalRead(OTA_MODE_PIN) == LOW) {
+    if (digitalRead(OTA_MODE_1_PIN) == LOW &&
+        digitalRead(OTA_MODE_2_PIN) == LOW) {
         Log::Info("Detected OTA mode.");
         LedDevice::SetColor(1, CONFIG_COLOR);
         LedDevice::Show();
