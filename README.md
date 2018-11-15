@@ -32,13 +32,19 @@
 
 To config SSID, and objectId.
 
-1. [yudetamago]  Power on with button x
+1. [yudetamago]  Power on with button 1
+
+### OTA(Over The Air) Mode
+
+To upload the firmware over the air.
+
+1. [yudetamago]  Power on with buttons 1 and 2
 
 ### Normal Mode
 
 To show yudetamago state, and to change yudetamago state.
 
-1. [yudetamago]  Power on without button x
+1. [yudetamago]  Power on with no buttons
 
 ## CommandLineAPI
 
@@ -295,9 +301,7 @@ Fri Oct 5 02:50:25 JST 2018 [INFO ] Detected Normal mode.
 
 ### ToDo
 
-- Download firmware over TCP/IP
-- Multi task
-- Modify log
+- Download firmware over TCP/IP(MD5)
 - Fix LED bug
 
 ## Link
