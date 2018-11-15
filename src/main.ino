@@ -262,6 +262,8 @@ void setup() {
 
     if (digitalRead(OTA_MODE_PIN) == LOW) {
         Log::Info("Detected OTA mode.");
+        LedDevice::SetColor(1, CONFIG_COLOR);
+        LedDevice::Show();
         for (int i=0; i<3; i++) {
             execOTA();
         }
