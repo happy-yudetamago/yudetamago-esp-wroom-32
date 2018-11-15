@@ -21,7 +21,7 @@ public:
 #define WAITING_COLOR    LedColor(LED_BRIGHTNESS, LED_BRIGHTNESS, 0)
 #define CONFIG_COLOR     LedColor(LED_BRIGHTNESS, LED_BRIGHTNESS, LED_BRIGHTNESS)
 #define EXISTS_COLOR     LedColor(0, 0, 0)
-#define NOT_EXSITS_COLOR LedColor(LED_BRIGHTNESS, 0, 0)
+#define NOT_EXISTS_COLOR LedColor(LED_BRIGHTNESS, 0, 0)
 
 class LedDevice {
 public:

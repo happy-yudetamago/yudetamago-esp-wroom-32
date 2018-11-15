@@ -96,10 +96,21 @@ static void reconnectWifi() {
     Log::Info(log.str().c_str());
 }
 
+static void showPressedButton(int index)
+{
+    bool exists = object_exists[index];
+    LedDevice::SetColor(index, exists? NOT_EXISTS_COLOR: EXISTS_COLOR);
+    LedDevice::Show();
+    vTaskDelay(300);
+
+    LedDevice::SetColor(index, exists? EXISTS_COLOR: NOT_EXISTS_COLOR);
+    LedDevice::Show();
+}
+
 static void showExistStates() {
     for (int i=0; i<OBJECT_ID_SIZE; i++) {
         bool exists = object_exists[i];
-        LedDevice::SetColor(i, exists? EXISTS_COLOR: NOT_EXSITS_COLOR);
+        LedDevice::SetColor(i, exists? EXISTS_COLOR: NOT_EXISTS_COLOR);
     }
     LedDevice::Show();
 }
@@ -300,8 +311,8 @@ void loop() {
             vTaskDelay(NCMB_BUTTON_INTERVAL);
             continue;
         }
+        showPressedButton(pressedButtonIndex);
         toggleExistState(pressedButtonIndex);
-        showExistStates();
         uploadExistState(pressedButtonIndex);
         downloadExistStates();
         showExistStates();
