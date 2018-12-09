@@ -8,7 +8,7 @@
 #define NUM_OF_NEO_PIXELS OBJECT_ID_SIZE
 #define NEO_PIXEL_STOCK_0 0
 
-#define LED_BRIGHTNESS    32
+#define LED_BRIGHTNESS    24
 
 #define OBJECT_ID_SIZE    5
 #define OBJECT_ID_MASK    0x1F
