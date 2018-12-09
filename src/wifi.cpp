@@ -15,6 +15,9 @@
 
 void connectWifi(const char *ssid, const char *pass)
 {
+    if (WiFi.isConnected()) {
+        WiFi.disconnect();
+    }
     // If forget mode(WIFI_STA), mode might be WIFI_AP_STA.
     WiFi.mode(WIFI_STA);
     WiFi.begin(ssid, pass);
