@@ -9,17 +9,6 @@
 #include "sha256.h"
 #include "NCMBConfig.h"
 
-// You should specify NCMB finger print(SHA1)
-// 1. Access https://mb.api.cloud.nifty.com/ from Browser
-// 2. Confirm server certification
-//
-// see also
-// https://github.com/esp8266/Arduino/issues/1941
-// https://github.com/esp8266/Arduino/issues/2556
-//
-// NCMB_FINGERPRINT deadline : 2019/07/24
-#define NCMB_FINGERPRINT "ED:74:40:90:98:20:C4:0A:C3:DD:9B:66:8C:51:8F:DF:0F:EC:53:11"
-
 static String getGetExistanceSignature(const char *objectId)
 {
     Sha256 sha256;
