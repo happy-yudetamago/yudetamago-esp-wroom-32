@@ -2,6 +2,8 @@
 // Use of this source code is governed by a MIT
 // license that can be found in the LICENSE file.
 
+#pragma once
+
 enum E_OTA_RESULT {
     OTA_OK,
     OTA_ERR_CONNECTION,
@@ -14,4 +16,4 @@ enum E_OTA_RESULT {
     OTA_ERR_OTHER,
 };
 
-E_OTA_RESULT execOTA();
+E_OTA_RESULT execOTA(const char *firmwareUri);

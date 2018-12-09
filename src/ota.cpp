@@ -10,14 +10,33 @@
 
 #include "log/Log.h"
 
-static const char *firmwareUri = "http://oedocowboys.sakura.ne.jp/yudetamago_web/gadget/firmware.bin";
+static E_OTA_RESULT execOTAOne(const char *firmwareUri);
 
-E_OTA_RESULT execOTA()
+const int OTA_RETRY_TIMES = 3;
+static const char *defaultFirmwareUri = "http://oedocowboys.sakura.ne.jp/yudetamago_web/gadget/firmware.bin";
+
+E_OTA_RESULT execOTA(const char *firmwareUri)
 {
+    E_OTA_RESULT result;
+    for (int i=0; i<OTA_RETRY_TIMES; i++) {
+        result = execOTAOne(firmwareUri);
+        if (result == OTA_OK) {
+            return OTA_OK;
+        }
+    }
+    return result;
+}
+
+static E_OTA_RESULT execOTAOne(const char *firmwareUri)
+{
+    const char *uri = firmwareUri;
+    if (uri == 0) {
+        uri = defaultFirmwareUri;
+    }
     Log::Info("OTA: connecting...");
-    Log::Info(firmwareUri);
+    Log::Info(uri);
     HTTPClient http;
-    if (!http.begin(firmwareUri)) {
+    if (!http.begin(uri)) {
         Log::Error("OTA: Connect failed.");
         return OTA_ERR_CONNECTION;
     }

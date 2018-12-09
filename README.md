@@ -253,6 +253,28 @@ reset
 $ reset
 ```
 
+### ota
+
+Over the air.
+Update the esp32 FW from internet.
+
+since v0.0.10
+
+#### synopsis
+
+```
+ota <url>
+```
+
+url : The esp32 FW bin URL. The default is Yudetamago newest bin.
+
+
+#### example
+
+```
+$ ota http://xxx.yyy.zzz/aaa.bin
+```
+
 ## for developer
 
 ### build firmware

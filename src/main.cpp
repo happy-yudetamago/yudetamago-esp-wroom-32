@@ -1,15 +1,18 @@
 // Copyright 2018 Yudetamago. All rights reserved.
 // Use of this source code is governed by a MIT
 // license that can be found in the LICENSE file.
+
 #ifdef TARGET
 
-#include <WiFi.h>
+#include <Arduino.h>
+
 #include <sstream>
 
 #include "log/Log.h"
 #include "command/CommandLine.h"
 
 #include "ota.h"
+#include "wifi.h"
 #include "Config.h"
 #include "YudetamagoClient.h"
 #include "hardware_defines.h"
@@ -28,6 +31,7 @@
 #include "SetSsidCommand.h"
 #include "LoopColorChangeCommand.h"
 #include "ResetCommand.h"
+#include "OtaCommand.h"
 
 const int NCMB_BUTTON_INTERVAL       = (100);
 const int NCMB_AFTER_BUTTON_INTERVAL = (1000);
@@ -47,6 +51,7 @@ SetObjectIdCommand     setObjectIdCommand;
 SetSsidCommand         setSsidCommand;
 LoopColorChangeCommand loopColorChangeCommand;
 ResetCommand           resetCommand;
+OtaCommand             otaCommand;
 
 static void showErrorOne(int ledMask) {
     LedDevice::SetColorMask(ledMask, ERROR_COLOR);
@@ -62,38 +67,6 @@ static void showError(int ledMask, int times) {
     for (int i=0; times < 0 || i<times; i++) {
         showErrorOne(ledMask);
     }
-}
-
-static void reconnectWifi() {
-    String ssid;
-    String pass;
-    Config::GetWifiConfig(ssid, pass);
-
-    // If forget mode(WIFI_STA), mode might be WIFI_AP_STA.
-    WiFi.mode(WIFI_STA);
-    WiFi.begin(ssid.c_str(), pass.c_str());
-
-    Log::Info("WiFi connecting...");
-    Log::Info(ssid.c_str());
-    Log::Info(pass.c_str());
-    while (WiFi.status() != WL_CONNECTED) {
-        LedDevice::SetColor(0, WAITING_COLOR);
-        LedDevice::Show();
-        Log::Debug(".");
-        vTaskDelay(500);
-
-        LedDevice::SetColor(0, BLACK_COLOR);
-        LedDevice::Show();
-        Log::Debug(".");
-        vTaskDelay(500);
-    }
-
-    Log::Info("WiFi connected.");
-    IPAddress ip = WiFi.localIP();
-
-    std::ostringstream log;
-    log << "IP address: " << (int)ip[0] << "." << (int)ip[1] << "." << (int)ip[2] << "." << (int)ip[3];
-    Log::Info(log.str().c_str());
 }
 
 static void showPressedButton(int index)
@@ -219,6 +192,9 @@ static void initializeCommandLine(Stream *stream)
 
     resetCommand.Initialize(stream);
     commandLine.AddCommand(&resetCommand);
+
+    otaCommand.Initialize(stream);
+    commandLine.AddCommand(&otaCommand);
 }
 
 void setup() {
@@ -276,16 +252,17 @@ void setup() {
         log += object_id;
         Log::Info(log.c_str());
     }
-    reconnectWifi();
+    String ssid;
+    String pass;
+    Config::GetWifiConfig(ssid, pass);
+    connectWifi(ssid.c_str(), pass.c_str());
 
     if (digitalRead(OTA_MODE_1_PIN) == LOW &&
         digitalRead(OTA_MODE_2_PIN) == LOW) {
         Log::Info("Detected OTA mode.");
         LedDevice::SetColor(1, CONFIG_COLOR);
         LedDevice::Show();
-        for (int i=0; i<3; i++) {
-            execOTA();
-        }
+        execOTA(0);
         showError(OBJECT_ID_MASK, -1);
     }
 
