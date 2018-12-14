@@ -53,6 +53,10 @@ CommandLineAPI are enabled in two cases.
 1. Bluetooth on ConfigMode
 1. USB Serial on NormalMode
 
+### remarks
+
+- one line until 256 bytes.
+
 ### set_ssid
 
 Set Wifi SSID and Wifi Password command.
@@ -263,10 +267,14 @@ since v0.0.10
 #### synopsis
 
 ```
-ota <url>
+ota <firmware url> <md5 url>
 ```
 
-url : The esp32 FW bin URL. The default is Yudetamago newest bin.
+firmware url : The esp32 FW bin URL.
+               If <firmware url> is not specifed, <firmware url> is Yudetamago newest bin.
+md5 url      : The esp32 FW bin MD5 URL.
+               If <firmware url> is not specifed, <md5 url> is Yudetamago newest md5.
+               If <firmware url> and <md5 url> is not specifed, ota do not use md5.
 
 
 #### example

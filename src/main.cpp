@@ -262,7 +262,7 @@ void setup() {
         Log::Info("Detected OTA mode.");
         LedDevice::SetColor(1, CONFIG_COLOR);
         LedDevice::Show();
-        execOTA(0);
+        execOTA(0, 0);
         showError(OBJECT_ID_MASK, -1);
     }
 

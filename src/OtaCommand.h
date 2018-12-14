@@ -24,18 +24,24 @@ public:
         Config::GetWifiConfig(ssid, pass);
         connectWifi(ssid.c_str(), pass.c_str());
 
-        const char *uri = parser->GetFirstArg();
-        E_OTA_RESULT result = execOTA(uri);
+        const char *firmware = parser->GetFirstArg();
+        const char *md5      = parser->NextArg(firmware);
+        E_OTA_RESULT result  = execOTA(firmware, md5);
 
         std::stringstream s;
         s << "ota: ";
-        if (uri == 0) {
-            s << "uri=0, result=";
+        if (firmware == 0) {
+            s << "firmware=0";
         } else {
-            s << "uri=" << uri << " result=";
+            s << "firmware=" << firmware;
+        }
+        if (md5 == 0) {
+            s << ", md5=0, result=";
+        } else {
+            s << ", md5=" << md5 << ", result=";
         }
         s << (int)result << "\n";
         reply(s.str().c_str());
-        return 0;
+        return result;
     }
 };
